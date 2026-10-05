@@ -54,10 +54,10 @@ global_js = """
         let btns = pDoc.querySelectorAll('button');
         btns.forEach(b => {
             if (b.innerText === 'GianLan') {
-                b.style.display = 'none'; // Ẩn nút
+                b.style.display = 'none'; 
                 let wrapper = b.closest('div[data-testid="stElementContainer"]');
                 if (wrapper) {
-                    wrapper.style.display = 'none'; // Ẩn luôn khoảng trắng bọc bên ngoài
+                    wrapper.style.display = 'none'; 
                     wrapper.style.height = '0px';
                 }
             }
@@ -158,21 +158,10 @@ cyber_css = """
     .cyber-top-arrow { color: #00f3ff; font-weight: 900; font-size: 1.4rem; margin-right: 15px; }
     .cyber-top-text { color: #ffffff; font-weight: bold; font-size: 1.2rem; letter-spacing: 2px; }
 
-    /* KHUNG BO GÓC SÁNG CYAN CHO MÀN HÌNH ĐĂNG NHẬP */
-    .login-box {
-        background: #000000 !important; border: 1px solid #00f3ff !important; 
-        border-radius: 0px !important; padding: 40px; margin-bottom: 30px !important;
-        box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset !important;
-    }
-
     /* TIÊU ĐỀ LOGIN */
     .cyber-login-title {
         text-align: center; color: #ffffff; font-weight: 900; font-size: 2rem; 
         letter-spacing: 3px; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 10px;
-    }
-    .cyber-login-subtitle {
-        text-align: center; color: #00f3ff; font-weight: bold; font-size: 1rem; 
-        letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase;
     }
 
     /* Ô NHẬP LIỆU */
@@ -337,10 +326,19 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 1.5, 1])
     with col2:
-        st.markdown("<div class='login-box'>", unsafe_allow_html=True)
+        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG
+        st.markdown("""
+        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px;'>
+            <h1 style='color: #ffffff; font-size: 3.5rem; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1</h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # BIỂU TƯỢNG VÀ TIÊU ĐỀ
         st.markdown("<div style='text-align: center; font-size: 3rem; margin-top: 0px;'>🖧</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='cyber-login-title'>{system_config.get('Tieu_De', 'BTVN TOÁN 7 - THẦY LINH')}</div>", unsafe_allow_html=True)
-        st.markdown("<div class='cyber-login-subtitle'>TRƯỜNG THCS VINH PHÚ 1 _ NA</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='cyber-login-title'>{system_config.get('Tieu_De', 'BÀI KIỂM TRA MÔN TOÁN')}</div>", unsafe_allow_html=True)
+        
+        # TÊN TÁC GIẢ PHÍA TRÊN PHẦN LƯU Ý
+        st.markdown("<div style='text-align: center; color: #00f3ff; font-family: monospace; font-size: 1.2rem; margin-top: 15px; margin-bottom: 10px; font-weight: bold;'>TÁC GIẢ: TRẦN VĂN LINH</div>", unsafe_allow_html=True)
         
         if system_config.get("Ghi_Chu", ""): st.info(system_config.get("Ghi_Chu", ""))
         
@@ -365,14 +363,13 @@ if st.session_state.exam_state == 'LOGIN':
                 else:
                     st.error("LỖI_KẾT_NỐI_MÁY_CHỦ")
             else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
-        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
 # 6. MÀN HÌNH LÀM BÀI CHÍNH
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
-    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 ---
+    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI ---
     st.markdown("""
     <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px;">
         <h1 style="color: #ffffff; font-size: 3.5rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1</h1>
