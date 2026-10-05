@@ -12,7 +12,7 @@ API_URL = "https://script.google.com/macros/s/AKfycbzAXrdKJbHeus5XfIS3F9hf_USz3a
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN HỌC & CHỐNG GIAN LẬN XUYÊN KHUNG
+# 1. BẢO VỆ TOÁN HỌC, CHỐNG GIAN LẬN & TOÀN MÀN HÌNH
 # ==========================================
 global_js = """
 <script>
@@ -48,6 +48,24 @@ global_js = """
         }
     }
     setInterval(makeSticky, 500);
+
+    // --- TỰ ĐỘNG BẬT TOÀN MÀN HÌNH KHI BẤM NÚT "XÁC THỰC" ---
+    pDoc.addEventListener('click', function(e) {
+        let btn = e.target.closest('button');
+        if (btn) {
+            let txt = btn.innerText || btn.textContent;
+            if (txt.includes('XÁC THỰC')) {
+                let docEl = pDoc.documentElement;
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(err => console.log(err));
+                } else if (docEl.webkitRequestFullscreen) { /* Safari */
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) { /* IE11 */
+                    docEl.msRequestFullscreen();
+                }
+            }
+        }
+    });
 
     // --- ẨN NÚT "GianLan" HOÀN TOÀN BẰNG JAVASCRIPT ---
     setInterval(() => {
@@ -326,10 +344,10 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 1.5, 1])
     with col2:
-        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG
+        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG, ÉP KHÔNG XUỐNG DÒNG
         st.markdown("""
-        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px;'>
-            <h1 style='color: #ffffff; font-size: 3.5rem; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1</h1>
+        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px; overflow: hidden;'>
+            <h1 style='color: #ffffff; font-size: clamp(1.5rem, 4vw, 3.5rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1</h1>
         </div>
         """, unsafe_allow_html=True)
         
@@ -369,11 +387,11 @@ if st.session_state.exam_state == 'LOGIN':
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
-    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI ---
+    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI, ÉP KHÔNG XUỐNG DÒNG ---
     st.markdown("""
-    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px;">
-        <h1 style="color: #ffffff; font-size: 3.5rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1</h1>
-        <h3 style="color: #00f3ff; font-size: 1.4rem; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
+    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px; overflow: hidden;">
+        <h1 style="color: #ffffff; font-size: clamp(1.5rem, 4vw, 3.5rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1</h1>
+        <h3 style="color: #00f3ff; font-size: clamp(0.8rem, 2vw, 1.4rem); white-space: nowrap; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
     </div>
     """, unsafe_allow_html=True)
 
