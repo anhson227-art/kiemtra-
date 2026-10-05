@@ -170,7 +170,7 @@ cyber_css = """
     /* THANH TOP BAR */
     .cyber-top-bar {
         background-color: #000000; border-bottom: 2px solid #00f3ff;
-        padding: 15px 25px; margin-top: -50px; margin-bottom: 30px;
+        padding: 15px 25px; margin-top: -50px; margin-bottom: 20px;
         display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.1);
     }
     .cyber-top-arrow { color: #00f3ff; font-weight: 900; font-size: 1.4rem; margin-right: 15px; }
@@ -179,15 +179,16 @@ cyber_css = """
     /* TIÊU ĐỀ LOGIN */
     .cyber-login-title {
         text-align: center; color: #ffffff; font-weight: 900; font-size: 2rem; 
-        letter-spacing: 3px; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 10px;
+        letter-spacing: 3px; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 5px; margin-bottom: 5px;
     }
 
     /* Ô NHẬP LIỆU */
-    div[data-testid="stTextInput"] label p { color: #00f3ff !important; font-size: 1rem !important; }
+    div[data-testid="stTextInput"] { margin-bottom: -10px !important; }
+    div[data-testid="stTextInput"] label p { color: #00f3ff !important; font-size: 1rem !important; margin-bottom: 5px !important;}
     div[data-testid="stTextInput"] input {
         background-color: #050505 !important; color: #00f3ff !important;
         border: 1px solid #005f66 !important; border-radius: 0px !important;
-        font-size: 1.1rem !important; padding: 12px !important;
+        font-size: 1.1rem !important; padding: 10px !important;
     }
 
     /* CHUẨN HÓA LẠI CỠ CHỮ TOÁN HỌC (KATEX) */
@@ -214,7 +215,7 @@ cyber_css = """
         background: #3b0764 !important; color: #d946ef !important; 
         border: 1px solid #a21caf !important; border-radius: 0px !important; 
         padding: 10px !important; font-size: 1.1rem !important; font-weight: bold !important;
-        letter-spacing: 1px !important; text-transform: uppercase !important;
+        letter-spacing: 1px !important; text-transform: uppercase !important; margin-top: 10px !important;
     }
     div[data-testid="stButton"] button[kind="primary"]:hover {
         background: #581c87 !important; color: #ffffff !important; box-shadow: 0 0 15px rgba(192, 38, 211, 0.6) !important;
@@ -342,30 +343,30 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 # 5. MÀN HÌNH ĐĂNG NHẬP (CYBER BOX)
 # ==========================================
 if st.session_state.exam_state == 'LOGIN':
-    # Mở rộng cột giữa từ tỷ lệ 1.5 lên 3 để chứa đủ dòng chữ
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
-        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG, ĐÃ MỞ RỘNG
+        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG: Thu hẹp margin, đưa về 3.0rem
         st.markdown("""
-        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px;'>
-            <h1 style='color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
+        <div style='background: #000000; border: 1px solid #00f3ff; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 10px; overflow: hidden;'>
+            <h1 style='color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3.0rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
         </div>
         """, unsafe_allow_html=True)
         
-        # BIỂU TƯỢNG VÀ TIÊU ĐỀ
-        st.markdown("<div style='text-align: center; font-size: 3rem; margin-top: 0px;'>🖧</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='cyber-login-title'>{system_config.get('Tieu_De', 'BÀI KIỂM TRA MÔN TOÁN')}</div>", unsafe_allow_html=True)
+        # BIỂU TƯỢNG VÀ TIÊU ĐỀ: Ép khoảng cách sát lại
+        st.markdown("<div style='text-align: center; font-size: 2.5rem; margin-top: 0px; margin-bottom: -10px;'>🖧</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='cyber-login-title' style='margin-bottom: 0px;'>{system_config.get('Tieu_De', 'BÀI KIỂM TRA MÔN TOÁN')}</div>", unsafe_allow_html=True)
         
         # TÊN TÁC GIẢ PHÍA TRÊN PHẦN LƯU Ý
-        st.markdown("<div style='text-align: center; color: #00f3ff; font-family: monospace; font-size: 1.2rem; margin-top: 15px; margin-bottom: 10px; font-weight: bold;'>TÁC GIẢ: TRẦN VĂN LINH</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; color: #00f3ff; font-family: monospace; font-size: 1.1rem; margin-top: 5px; margin-bottom: 15px; font-weight: bold;'>TÁC GIẢ: TRẦN VĂN LINH</div>", unsafe_allow_html=True)
         
-        if system_config.get("Ghi_Chu", ""): st.info(system_config.get("Ghi_Chu", ""))
-        
-        st.write("")
+        if system_config.get("Ghi_Chu", ""): 
+            st.info(system_config.get("Ghi_Chu", ""))
+            
         ho_ten = st.text_input("> TÊN_HỌC_SINH", placeholder="NHẬP_DỮ_LIỆU...")
         lop = st.text_input("> MÃ_LỚP", placeholder="NHẬP_DỮ_LIỆU...")
-        st.write("")
-        st.write("")
+        
+        # Thêm xíu khoảng cách trước nút XÁC THỰC thay vì dòng st.write() rộng lớn
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
         if st.button("XÁC THỰC ➔", type="primary", use_container_width=True):
             if ho_ten and lop:
@@ -388,11 +389,11 @@ if st.session_state.exam_state == 'LOGIN':
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
-    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI ---
+    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI, ÉP KHÔNG XUỐNG DÒNG VÀ 3.0REM ---
     st.markdown("""
-    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px;">
-        <h1 style="color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
-        <h3 style="color: #00f3ff; font-size: clamp(0.8rem, 2vw, 1.4rem); white-space: nowrap; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
+    <div style="text-align: center; padding-bottom: 15px; border-bottom: 1px dashed #005f66; margin-bottom: 20px; overflow: hidden;">
+        <h1 style="color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3.0rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
+        <h3 style="color: #00f3ff; font-size: clamp(0.8rem, 2vw, 1.2rem); white-space: nowrap; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
     </div>
     """, unsafe_allow_html=True)
 
