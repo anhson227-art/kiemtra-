@@ -342,12 +342,13 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 # 5. MÀN HÌNH ĐĂNG NHẬP (CYBER BOX)
 # ==========================================
 if st.session_state.exam_state == 'LOGIN':
-    col1, col2, col3 = st.columns([1, 1.5, 1])
+    # Mở rộng cột giữa từ tỷ lệ 1.5 lên 3 để chứa đủ dòng chữ
+    col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
-        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG, ÉP KHÔNG XUỐNG DÒNG
+        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG, ĐÃ MỞ RỘNG
         st.markdown("""
-        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px; overflow: hidden;'>
-            <h1 style='color: #ffffff; font-size: clamp(1.5rem, 4vw, 3.5rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1</h1>
+        <div style='background: #000000; border: 1px solid #00f3ff; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 25px;'>
+            <h1 style='color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
         </div>
         """, unsafe_allow_html=True)
         
@@ -387,10 +388,10 @@ if st.session_state.exam_state == 'LOGIN':
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
-    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI, ÉP KHÔNG XUỐNG DÒNG ---
+    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI ---
     st.markdown("""
-    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px; overflow: hidden;">
-        <h1 style="color: #ffffff; font-size: clamp(1.5rem, 4vw, 3.5rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1</h1>
+    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px;">
+        <h1 style="color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
         <h3 style="color: #00f3ff; font-size: clamp(0.8rem, 2vw, 1.4rem); white-space: nowrap; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
     </div>
     """, unsafe_allow_html=True)
