@@ -49,6 +49,21 @@ global_js = """
     }
     setInterval(makeSticky, 500);
 
+    // --- ẨN NÚT "GianLan" HOÀN TOÀN BẰNG JAVASCRIPT ---
+    setInterval(() => {
+        let btns = pDoc.querySelectorAll('button');
+        btns.forEach(b => {
+            if (b.innerText === 'GianLan') {
+                b.style.display = 'none'; // Ẩn nút
+                let wrapper = b.closest('div[data-testid="stElementContainer"]');
+                if (wrapper) {
+                    wrapper.style.display = 'none'; // Ẩn luôn khoảng trắng bọc bên ngoài
+                    wrapper.style.height = '0px';
+                }
+            }
+        });
+    }, 100);
+
     // --- HỆ THỐNG CHỐNG GIAN LẬN BẮT GỬI TÍN HIỆU VỀ PYTHON ---
     if (!pWin.antiCheatTracker_v3) {
         pWin.antiCheatTracker_v3 = true;
@@ -61,11 +76,13 @@ global_js = """
             let bodyText = pDoc.body.innerText || "";
             if (!bodyText.includes("THỜI GIAN CÒN LẠI")) return;
 
-            let hiddenBtn = pDoc.querySelector('button[title="hidden_cheat_btn"]');
-            if (hiddenBtn) {
-                pWin.lastCheatTime = now;
-                hiddenBtn.click(); 
-            }
+            let btns = pDoc.querySelectorAll('button');
+            btns.forEach(b => {
+                if (b.innerText === 'GianLan') {
+                    pWin.lastCheatTime = now;
+                    b.click(); // Âm thầm tự động click gửi về máy chủ
+                }
+            });
         }
 
         pDoc.addEventListener("visibilitychange", () => {
@@ -135,16 +152,16 @@ cyber_css = """
     /* THANH TOP BAR */
     .cyber-top-bar {
         background-color: #000000; border-bottom: 2px solid #00f3ff;
-        padding: 15px 25px; margin-top: -50px; margin-bottom: 40px;
+        padding: 15px 25px; margin-top: -50px; margin-bottom: 30px;
         display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0, 243, 255, 0.1);
     }
     .cyber-top-arrow { color: #00f3ff; font-weight: 900; font-size: 1.4rem; margin-right: 15px; }
     .cyber-top-text { color: #ffffff; font-weight: bold; font-size: 1.2rem; letter-spacing: 2px; }
 
-    /* KHUNG BO GÓC SÁNG CYAN */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* KHUNG BO GÓC SÁNG CYAN CHO MÀN HÌNH ĐĂNG NHẬP */
+    .login-box {
         background: #000000 !important; border: 1px solid #00f3ff !important; 
-        border-radius: 0px !important; margin-bottom: 30px !important;
+        border-radius: 0px !important; padding: 40px; margin-bottom: 30px !important;
         box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset !important;
     }
 
@@ -200,7 +217,12 @@ cyber_css = """
         border-radius: 0px !important; padding: 10px !important; width: 100% !important; font-size: 1.1rem !important;
     }
 
-    /* GIAO DIỆN BÀI THI CHÍNH */
+    /* KHUNG CÂU HỎI CHÍNH */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #000000 !important; border: 1px solid #00f3ff !important; 
+        border-radius: 0px !important; margin-bottom: 30px !important;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset !important;
+    }
     .q-header-box {
         background: #001a1a; color: #00f3ff !important;
         font-weight: bold; font-size: 1.2rem; padding: 10px 20px;
@@ -260,7 +282,7 @@ cyber_css = """
 st.markdown(cyber_css, unsafe_allow_html=True)
 
 # ==========================================
-# 3. HEADER CYBERPUNK (TOP BAR)
+# 3. HEADER TOP BAR NHO NHỎ
 # ==========================================
 st.markdown("""
 <div class='cyber-top-bar'>
@@ -315,46 +337,55 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 1.5, 1])
     with col2:
-        with st.container(border=True):
-            st.markdown("<div style='text-align: center; font-size: 3rem; margin-top: 10px;'>🖧</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='cyber-login-title'>{system_config.get('Tieu_De', 'BTVN TOÁN 7 - THẦY LINH')}</div>", unsafe_allow_html=True)
-            st.markdown("<div class='cyber-login-subtitle'>TRƯỜNG THCS VINH PHÚ 1 _ NA</div>", unsafe_allow_html=True)
-            
-            if system_config.get("Ghi_Chu", ""): st.info(system_config.get("Ghi_Chu", ""))
-            
-            st.write("")
-            ho_ten = st.text_input("> TÊN_HỌC_SINH", placeholder="NHẬP_DỮ_LIỆU...")
-            lop = st.text_input("> MÃ_LỚP", placeholder="NHẬP_DỮ_LIỆU...")
-            st.write("")
-            st.write("")
-            
-            if st.button("XÁC THỰC ➔", type="primary", use_container_width=True):
-                if ho_ten and lop:
-                    if raw_data and 'questions' in raw_data:
-                        st.session_state.cheat_count = 0
-                        st.session_state.ho_ten = ho_ten
-                        st.session_state.lop = lop
-                        st.session_state.config = system_config 
-                        st.session_state.questions = generate_exam(raw_data['questions'], system_config)
-                        st.session_state.start_time = time.time()
-                        st.session_state.current_q_index = 0
-                        st.session_state.exam_state = 'IN_PROGRESS'
-                        st.rerun()
-                    else:
-                        st.error("LỖI_KẾT_NỐI_MÁY_CHỦ")
-                else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
+        st.markdown("<div class='login-box'>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; font-size: 3rem; margin-top: 0px;'>🖧</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='cyber-login-title'>{system_config.get('Tieu_De', 'BTVN TOÁN 7 - THẦY LINH')}</div>", unsafe_allow_html=True)
+        st.markdown("<div class='cyber-login-subtitle'>TRƯỜNG THCS VINH PHÚ 1 _ NA</div>", unsafe_allow_html=True)
+        
+        if system_config.get("Ghi_Chu", ""): st.info(system_config.get("Ghi_Chu", ""))
+        
+        st.write("")
+        ho_ten = st.text_input("> TÊN_HỌC_SINH", placeholder="NHẬP_DỮ_LIỆU...")
+        lop = st.text_input("> MÃ_LỚP", placeholder="NHẬP_DỮ_LIỆU...")
+        st.write("")
+        st.write("")
+        
+        if st.button("XÁC THỰC ➔", type="primary", use_container_width=True):
+            if ho_ten and lop:
+                if raw_data and 'questions' in raw_data:
+                    st.session_state.cheat_count = 0
+                    st.session_state.ho_ten = ho_ten
+                    st.session_state.lop = lop
+                    st.session_state.config = system_config 
+                    st.session_state.questions = generate_exam(raw_data['questions'], system_config)
+                    st.session_state.start_time = time.time()
+                    st.session_state.current_q_index = 0
+                    st.session_state.exam_state = 'IN_PROGRESS'
+                    st.rerun()
+                else:
+                    st.error("LỖI_KẾT_NỐI_MÁY_CHỦ")
+            else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 6. MÀN HÌNH LÀM BÀI
+# 6. MÀN HÌNH LÀM BÀI CHÍNH
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
+    
+    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 ---
+    st.markdown("""
+    <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px dashed #005f66; margin-bottom: 30px;">
+        <h1 style="color: #ffffff; font-size: 3.5rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1</h1>
+        <h3 style="color: #00f3ff; font-size: 1.4rem; font-family: monospace; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0;">HỆ THỐNG KIỂM TRA ĐÁNH GIÁ TOÁN HỌC</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
     total_q = len(st.session_state.questions)
     current_idx = st.session_state.current_q_index
     q = st.session_state.questions[current_idx]
     
     # NÚT TÀNG HÌNH NHẬN TÍN HIỆU GIAN LẬN
-    st.markdown('<style>button[title="hidden_cheat_btn"] { display: none !important; }</style>', unsafe_allow_html=True)
-    if st.button("GianLan", help="hidden_cheat_btn"):
+    if st.button("GianLan"):
         st.session_state.cheat_count += 1
         if st.session_state.cheat_count >= 3:
             st.session_state.trigger_submit = True
@@ -369,26 +400,10 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         thoi_gian_giay = int(st.session_state.config.get("Thoi_Gian_Phut", 15)) * 60
         time_left = max(0, thoi_gian_giay - (time.time() - st.session_state.start_time))
         
-        # BỘ ĐẾM THỜI GIAN ĐÃ ĐƯỢC CHÈN CSS ĐẦY ĐỦ VÀO LÕI IFRAME
         components.html(f"""
-        <style>
-            body {{ margin: 0; padding: 0; background-color: transparent; font-family: monospace; }}
-            #timer-box {{
-                background-color: #000000;
-                border: 2px solid #00f3ff;
-                border-radius: 0px;
-                padding: 15px 10px;
-                text-align: center;
-                box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset;
-            }}
-            #time-title {{ color: #00f3ff; font-size: 14px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }}
-            #time {{ color: #ffffff; font-size: 38px; font-weight: 900; text-shadow: 0 0 8px rgba(255,255,255,0.5); }}
-            .danger-border {{ border-color: #ef4444 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) inset !important; }}
-            .danger-text {{ color: #ef4444 !important; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important; }}
-        </style>
-        <div id="timer-box">
-            <div id="time-title">THỜI GIAN CÒN LẠI</div>
-            <div id="time">...</div>
+        <div id="timer-box" style="background-color: #000000; border: 2px solid #00f3ff; padding: 15px 10px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset;">
+            <div id="time-title" style="color: #00f3ff; font-family: monospace; font-size: 14px; font-weight: bold; margin-bottom: 5px;">THỜI GIAN CÒN LẠI</div>
+            <div id="time" style="color: #ffffff; font-size: 38px; font-family: monospace; font-weight: 900; text-shadow: 0 0 8px rgba(255,255,255,0.5);">...</div>
         </div>
         <script>
         var time_left = {int(time_left)};
@@ -399,9 +414,9 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
             document.getElementById("time").innerHTML = m + ":" + s;
             
             if (time_left <= 60 && time_left > 0) {{
-                document.getElementById("timer-box").classList.add("danger-border");
-                document.getElementById("time").classList.add("danger-text");
-                document.getElementById("time-title").classList.add("danger-text");
+                document.getElementById("timer-box").style.borderColor = "#ef4444";
+                document.getElementById("time").style.color = "#ef4444";
+                document.getElementById("time-title").style.color = "#ef4444";
             }}
             
             if (time_left <= 0) {{ 
@@ -419,7 +434,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         """, height=120)
         
         st.write("")
-        st.markdown("<div style='color: #00f3ff; font-family: monospace; font-size: 15px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>&gt; BẢNG ĐIỀU HƯỚNG:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color: #00f3ff; font-family: monospace; font-size: 14px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>&gt; BẢNG ĐIỀU HƯỚNG:</div>", unsafe_allow_html=True)
         
         with st.container():
             st.markdown("<span id='nav-grid-marker'></span>", unsafe_allow_html=True)
@@ -460,7 +475,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         elif st.session_state.cheat_count == 2:
             st.error("🚨 **CẢNH BÁO LẦN 2:** Cảnh báo cuối cùng! Rời màn hình lần nữa bài sẽ tự nộp.")
 
-        st.markdown(f"<p style='color:#ffffff; font-size: 1.1rem; font-weight: bold; font-family: monospace;'>📝 BÀI THI TOÁN: {st.session_state.ho_ten.upper()} | {st.session_state.lop.upper()}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color:#ffffff; font-size: 1.1rem; font-weight: bold; font-family: monospace;'>📝 BÀI THI TOÁN: {st.session_state.ho_ten.upper()} | LỚP: {st.session_state.lop.upper()}</p>", unsafe_allow_html=True)
         
         progress_pct = int(((current_idx + 1) / total_q) * 100)
         st.markdown(f"""
