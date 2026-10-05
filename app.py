@@ -91,7 +91,7 @@ global_js = """
 components.html(global_js, height=0, width=0)
 
 # ==========================================
-# 2. CSS THEME HACKER / CYBERPUNK (ĐÃ SỬA LỖI SIZE CHỮ & TOÁN)
+# 2. CSS THEME HACKER / CYBERPUNK
 # ==========================================
 cyber_css = """
 <style>
@@ -166,35 +166,26 @@ cyber_css = """
         font-size: 1.1rem !important; padding: 12px !important;
     }
 
-    /* ========================================= */
-    /* CHUẨN HÓA LẠI CỠ CHỮ TOÁN HỌC (KATEX)     */
-    /* Đổi sang màu Xanh Cyan cho dễ nhìn trên nền đen */
-    /* ========================================= */
+    /* CHUẨN HÓA LẠI CỠ CHỮ TOÁN HỌC (KATEX) */
     .katex, .katex-html { 
-        font-size: 1.1em !important; /* Trả về kích thước cân đối với chữ */
+        font-size: 1.1em !important; 
         color: #00f3ff !important; 
     }
 
-    /* ========================================= */
-    /* NÚT BẤM (BUTTONS)                         */
-    /* ========================================= */
-    /* BẢNG ĐIỀU HƯỚNG C1, C2 (TĂNG SIZE CHỮ) */
+    /* NÚT BẤM BẢNG ĐIỀU HƯỚNG C1, C2 */
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button {
-        font-size: 1.1rem !important; /* Chữ C1, C2 to hơn */
-        padding: 5px !important; min-height: 40px !important;
+        font-size: 1.1rem !important; padding: 5px !important; min-height: 40px !important;
     }
-    /* Câu ĐÃ LÀM (Màu Tím Sáng) */
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button[kind="primary"] {
         background: #701a75 !important; color: #ffffff !important; border: 1px solid #d946ef !important; 
         box-shadow: 0 0 10px rgba(217, 70, 239, 0.4) !important;
     }
-    /* Câu CHƯA LÀM (Màu Đen Viền Cyan Tối) */
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button[kind="secondary"] {
         background: #000000 !important; color: #00f3ff !important; border: 1px solid #005f66 !important; 
     }
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button:hover { border-color: #00f3ff !important; }
 
-    /* NÚT XÁC NHẬN / NỘP BÀI (MÀU TÍM ĐẬM) */
+    /* NÚT XÁC NHẬN / NỘP BÀI */
     div[data-testid="stButton"] button[kind="primary"] {
         background: #3b0764 !important; color: #d946ef !important; 
         border: 1px solid #a21caf !important; border-radius: 0px !important; 
@@ -209,16 +200,12 @@ cyber_css = """
         border-radius: 0px !important; padding: 10px !important; width: 100% !important; font-size: 1.1rem !important;
     }
 
-    /* ========================================= */
-    /* GIAO DIỆN BÀI THI CHÍNH                   */
-    /* ========================================= */
+    /* GIAO DIỆN BÀI THI CHÍNH */
     .q-header-box {
         background: #001a1a; color: #00f3ff !important;
         font-weight: bold; font-size: 1.2rem; padding: 10px 20px;
-        border-bottom: 1px solid #00f3ff; text-transform: uppercase;
-        letter-spacing: 1px;
+        border-bottom: 1px solid #00f3ff; text-transform: uppercase; letter-spacing: 1px;
     }
-    /* Kích thước chữ đề bài (Cân đối lại) */
     h4 {
         padding: 20px 25px 10px 25px !important; font-size: 1.35rem !important;
         font-weight: normal !important; line-height: 1.6 !important; color: #ffffff !important; margin: 0 !important;
@@ -238,11 +225,8 @@ cyber_css = """
         background-color: #001a1a !important; border-color: #00f3ff !important;
         box-shadow: 0 0 10px rgba(0, 243, 255, 0.2) inset !important;
     }
-    
-    /* CHỮ ĐÁP ÁN BÊN TRONG (Gỡ bỏ các lệnh transform scale gây lỗi) */
     div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] label p {
-        font-size: 1.2rem !important; color: #ffffff !important; margin-left: 10px !important;
-        line-height: 1.5 !important;
+        font-size: 1.2rem !important; color: #ffffff !important; margin-left: 10px !important; line-height: 1.5 !important;
     }
 
     /* DẠNG 2: MỆNH ĐỀ ĐÚNG SAI */
@@ -265,14 +249,6 @@ cyber_css = """
     div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-baseweb="radio"] label p {
         font-size: 1.1rem !important; color: #ffffff !important; margin-left: 5px !important;
     }
-
-    /* ĐỒNG HỒ ĐẾM NGƯỢC */
-    #timer-box {
-        background: #000000 !important; border: 1px solid #00f3ff !important; border-radius: 0px !important;
-        padding: 15px 10px; text-align: center; box-shadow: 0 0 10px rgba(0, 243, 255, 0.1) inset !important;
-    }
-    #time-title { color: #00f3ff !important; font-family: monospace; font-size: 12px; font-weight: bold; }
-    #time { color: #ffffff !important; font-size: 32px; font-family: monospace; font-weight: 900; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
 
     @media (max-width: 768px) {
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
@@ -337,7 +313,6 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 # 5. MÀN HÌNH ĐĂNG NHẬP (CYBER BOX)
 # ==========================================
 if st.session_state.exam_state == 'LOGIN':
-    
     col1, col2, col3 = st.columns([1, 1.5, 1])
     with col2:
         with st.container(border=True):
@@ -373,7 +348,6 @@ if st.session_state.exam_state == 'LOGIN':
 # 6. MÀN HÌNH LÀM BÀI
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
-    
     total_q = len(st.session_state.questions)
     current_idx = st.session_state.current_q_index
     q = st.session_state.questions[current_idx]
@@ -395,7 +369,23 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         thoi_gian_giay = int(st.session_state.config.get("Thoi_Gian_Phut", 15)) * 60
         time_left = max(0, thoi_gian_giay - (time.time() - st.session_state.start_time))
         
+        # BỘ ĐẾM THỜI GIAN ĐÃ ĐƯỢC CHÈN CSS ĐẦY ĐỦ VÀO LÕI IFRAME
         components.html(f"""
+        <style>
+            body {{ margin: 0; padding: 0; background-color: transparent; font-family: monospace; }}
+            #timer-box {{
+                background-color: #000000;
+                border: 2px solid #00f3ff;
+                border-radius: 0px;
+                padding: 15px 10px;
+                text-align: center;
+                box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset;
+            }}
+            #time-title {{ color: #00f3ff; font-size: 14px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }}
+            #time {{ color: #ffffff; font-size: 38px; font-weight: 900; text-shadow: 0 0 8px rgba(255,255,255,0.5); }}
+            .danger-border {{ border-color: #ef4444 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) inset !important; }}
+            .danger-text {{ color: #ef4444 !important; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important; }}
+        </style>
         <div id="timer-box">
             <div id="time-title">THỜI GIAN CÒN LẠI</div>
             <div id="time">...</div>
@@ -409,24 +399,27 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
             document.getElementById("time").innerHTML = m + ":" + s;
             
             if (time_left <= 60 && time_left > 0) {{
-                document.getElementById("timer-box").style.borderColor = "#ef4444";
-                document.getElementById("time").style.color = "#ef4444";
+                document.getElementById("timer-box").classList.add("danger-border");
+                document.getElementById("time").classList.add("danger-text");
+                document.getElementById("time-title").classList.add("danger-text");
             }}
             
             if (time_left <= 0) {{ 
                 clearInterval(x); 
                 document.getElementById("time").innerHTML = "HẾT GIỜ";
-                window.parent.document.querySelectorAll('button').forEach(btn => {{
-                    let text = btn.innerText || btn.textContent;
-                    if(text.includes('NỘP BÀI') || text.includes('HOÀN THÀNH')) btn.click();
-                }});
+                if(window.parent && window.parent.document) {{
+                    window.parent.document.querySelectorAll('button').forEach(btn => {{
+                        let text = btn.innerText || btn.textContent;
+                        if(text.includes('NỘP BÀI') || text.includes('HOÀN THÀNH')) btn.click();
+                    }});
+                }}
             }}
         }}, 1000);
         </script>
-        """, height=110)
+        """, height=120)
         
         st.write("")
-        st.markdown("<div style='color: #00f3ff; font-family: monospace; font-size: 14px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>&gt; BẢNG ĐIỀU HƯỚNG:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color: #00f3ff; font-family: monospace; font-size: 15px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>&gt; BẢNG ĐIỀU HƯỚNG:</div>", unsafe_allow_html=True)
         
         with st.container():
             st.markdown("<span id='nav-grid-marker'></span>", unsafe_allow_html=True)
@@ -585,7 +578,7 @@ elif st.session_state.exam_state == 'SUBMITTED':
         st.write("")
         
         if st.session_state.get('cheat_count', 0) >= 3:
-            st.error("🚫 BÀI THI KẾT THÚC: Bạn đã bị thu bài do vi phạm gian lận 3 lần.")
+            st.error("🚫 BÀI THI KẾT THÚC DO VI PHẠM QUY CHẾ: Bạn đã bị thu bài do vi phạm gian lận 3 lần.")
             
         st.markdown(f"""
         <div style='background: #050505; border: 2px solid #00f3ff; border-radius: 0px; padding: 50px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.2) inset;'>
