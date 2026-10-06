@@ -12,7 +12,7 @@ API_URL = "https://script.google.com/macros/s/AKfycbyhMvS3sdXpqfQmA2lr5sFoG-0nG5
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO THCS (ĐÃ SỬA LỖI HIỂN THỊ)
+# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO THCS
 # ==========================================
 global_js = """
 <script>
@@ -85,31 +85,30 @@ global_js = """
         pDoc.head.appendChild(script);
     }
 
-    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ (ĐÃ SỬA LỖI ÉP KHUNG) ---
+    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ ---
     setInterval(() => {
         if (!pWin.customElements.get('math-field')) return;
 
         let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
         inputs.forEach(input => {
-            // Tìm khung chứa to nhất của Streamlit
             let container = input.closest('div[data-testid="stTextInput"]');
             
             if (container && !container.querySelector('math-field')) {
                 
-                // 1. ẨN HOÀN TOÀN KHUNG GỐC CỦA STREAMLIT (Tránh bị ép Flexbox)
-                let baseWebInput = container.querySelector('div[data-baseweb="input"]');
-                if (baseWebInput) {
-                    baseWebInput.style.display = 'none';
-                } else {
-                    input.style.display = 'none';
+                // 1. XÓA SỔ HOÀN TOÀN KHUNG TRẮNG GỐC CỦA STREAMLIT
+                // Streamlit bọc input trong 1 div là children[1] của container
+                if (container.children.length > 1) {
+                    container.children[1].style.display = 'none';
+                    container.children[1].style.height = '0px';
+                    container.children[1].style.margin = '0px';
+                    container.children[1].style.padding = '0px';
                 }
 
-                // 2. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD)
+                // 2. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD) MỚI
                 let mf = pDoc.createElement('math-field');
                 mf.mathVirtualKeyboardPolicy = 'manual'; // Tắt bàn phím mặc định
                 mf.value = input.value; // Khôi phục giá trị
                 
-                // Trực tiếp gắn style CSS vào thẻ
                 mf.style.width = '100%';
                 mf.style.display = 'block';
                 mf.style.fontSize = '2.5rem';
@@ -147,7 +146,6 @@ global_js = """
                     <button type="button" data-val=")" title="Đóng ngoặc">)</button>
                 `;
                 
-                // CHÈN VÀO CUỐI CONTAINER (Không bị kẹp trong Flexbox)
                 container.appendChild(mf);
                 container.appendChild(toolbar);
 
@@ -302,6 +300,7 @@ cyber_css = """
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
         .cyber-login-title { font-size: 1.5rem !important; }
         .cyber-top-text { font-size: 0.9rem !important; }
+        math-field { font-size: 2.0rem !important; }
     }
 </style>
 """
@@ -565,7 +564,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 st.info("💡 Bạn có thể dùng Bàn phím ảo bên dưới để gõ nhanh Phân số, Căn bậc, Lũy thừa...")
                 saved_ans = st.session_state.answers.get(q_id, "")
                 
-                # Khung nhập liệu gốc của Streamlit (Sẽ được JS đè lên bằng Bảng Toán khổng lồ)
+                # Ô input gốc (JS sẽ tự tìm và cắt bỏ cái vỏ thừa)
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
                 
                 st.session_state.answers[q_id] = val
