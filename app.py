@@ -85,7 +85,7 @@ global_js = """
         pDoc.head.appendChild(script);
     }
 
-    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ ---
+    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN ---
     setInterval(() => {
         if (!pWin.customElements.get('math-field')) return;
 
@@ -95,8 +95,6 @@ global_js = """
             
             if (container && !container.querySelector('math-field')) {
                 
-                // 1. XÓA SỔ HOÀN TOÀN KHUNG TRẮNG GỐC CỦA STREAMLIT
-                // Streamlit bọc input trong 1 div là children[1] của container
                 if (container.children.length > 1) {
                     container.children[1].style.display = 'none';
                     container.children[1].style.height = '0px';
@@ -104,14 +102,13 @@ global_js = """
                     container.children[1].style.padding = '0px';
                 }
 
-                // 2. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD) MỚI
                 let mf = pDoc.createElement('math-field');
-                mf.mathVirtualKeyboardPolicy = 'manual'; // Tắt bàn phím mặc định
-                mf.value = input.value; // Khôi phục giá trị
+                mf.mathVirtualKeyboardPolicy = 'manual'; 
+                mf.value = input.value; 
                 
                 mf.style.width = '100%';
                 mf.style.display = 'block';
-                mf.style.fontSize = '2.5rem';
+                mf.style.fontSize = '1.8rem'; // Giảm kích thước theo yêu cầu
                 mf.style.backgroundColor = '#000000';
                 mf.style.color = '#00f3ff';
                 mf.style.border = '2px solid #d946ef';
@@ -128,7 +125,6 @@ global_js = """
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 });
 
-                // 3. TẠO BÀN PHÍM ẢO THCS
                 let toolbar = pDoc.createElement('div');
                 toolbar.className = 'math-toolbar';
                 toolbar.innerHTML = `
@@ -240,7 +236,6 @@ cyber_css = """
     div[data-testid="stRadio"] label { cursor: pointer !important; }
     div[data-testid="stRadio"] label p { font-size: 1.1rem !important; font-weight: bold !important; color: #00f3ff !important; }
 
-    /* BÀN PHÍM ẢO THCS CYBERPUNK */
     .math-toolbar { 
         display: grid !important; 
         grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)) !important; 
@@ -300,7 +295,7 @@ cyber_css = """
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
         .cyber-login-title { font-size: 1.5rem !important; }
         .cyber-top-text { font-size: 0.9rem !important; }
-        math-field { font-size: 2.0rem !important; }
+        math-field { font-size: 1.5rem !important; }
     }
 </style>
 """
@@ -372,8 +367,6 @@ if st.session_state.exam_state == 'LOGIN':
         mode = st.radio("Chế độ:", ["Đăng Nhập", "Đổi Mật Khẩu"], horizontal=True, label_visibility="collapsed")
         
         if mode == "Đăng Nhập":
-            st.info("Lưu ý: Mật khẩu mặc định do Giáo viên cung cấp. Hãy đổi mật khẩu để bảo mật.")
-            
             username = st.text_input("> TÀI_KHOẢN", placeholder="Nhập tên đăng nhập (Mã HS)...")
             password = st.text_input("> MẬT_KHẨU", placeholder="Nhập mật khẩu...", type="password")
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
@@ -564,7 +557,6 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 st.info("💡 Bạn có thể dùng Bàn phím ảo bên dưới để gõ nhanh Phân số, Căn bậc, Lũy thừa...")
                 saved_ans = st.session_state.answers.get(q_id, "")
                 
-                # Ô input gốc (JS sẽ tự tìm và cắt bỏ cái vỏ thừa)
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
                 
                 st.session_state.answers[q_id] = val
