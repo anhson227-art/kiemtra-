@@ -108,7 +108,7 @@ global_js = """
                 
                 mf.style.width = '100%';
                 mf.style.display = 'block';
-                mf.style.fontSize = '1.8rem'; // Giảm kích thước theo yêu cầu
+                mf.style.fontSize = '1.4rem'; // ĐÃ GIẢM XUỐNG 1.4REM THEO YÊU CẦU
                 mf.style.backgroundColor = '#000000';
                 mf.style.color = '#00f3ff';
                 mf.style.border = '2px solid #d946ef';
@@ -295,7 +295,7 @@ cyber_css = """
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
         .cyber-login-title { font-size: 1.5rem !important; }
         .cyber-top-text { font-size: 0.9rem !important; }
-        math-field { font-size: 1.5rem !important; }
+        math-field { font-size: 1.4rem !important; }
     }
 </style>
 """
@@ -394,7 +394,6 @@ if st.session_state.exam_state == 'LOGIN':
                 else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
                 
         else:
-            st.warning("⚠️ Chỉ nhập thông tin vào đây khi bạn muốn thay đổi Mật khẩu.")
             username = st.text_input("> TÀI_KHOẢN", placeholder="Nhập tên đăng nhập (Mã HS)...")
             old_password = st.text_input("> MẬT_KHẨU_CŨ", placeholder="Nhập mật khẩu hiện tại...", type="password")
             new_password = st.text_input("> MẬT_KHẨU_MỚI", placeholder="Nhập mật khẩu mới an toàn hơn...", type="password")
@@ -554,7 +553,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 
             elif dang == 3:
                 st.markdown("<div style='padding: 25px;'>", unsafe_allow_html=True)
-                st.info("💡 Bạn có thể dùng Bàn phím ảo bên dưới để gõ nhanh Phân số, Căn bậc, Lũy thừa...")
+                # Đã loại bỏ thẻ st.info() hiển thị thông báo hướng dẫn bàn phím ảo
                 saved_ans = st.session_state.answers.get(q_id, "")
                 
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
