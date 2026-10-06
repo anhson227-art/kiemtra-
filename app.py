@@ -7,7 +7,7 @@ import time
 # ==========================================
 # CẤU HÌNH API
 # ==========================================
-API_URL = "https://script.google.com/macros/s/AKfycbyb24TQ7Llwf9XZBiB3SbkLgv90GF9AWZg__IZrnWIIHsjiwlhGqw9tI3UQpDdnRza-/exec" # Dán link Google Apps Script vào đây
+API_URL = "https://script.google.com/macros/s/AKfycbyhMvS3sdXpqfQmA2lr5sFoG-0nG57Ob6EQCA17glyqDGCTvsAkByJxIhiZUDxR6mns/exec" # Dán link Google Apps Script vào đây
 
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
