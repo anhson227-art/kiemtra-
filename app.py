@@ -12,13 +12,14 @@ API_URL = "https://script.google.com/macros/s/AKfycbyhMvS3sdXpqfQmA2lr5sFoG-0nG5
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN HỌC, CHỐNG GIAN LẬN & TOÀN MÀN HÌNH
+# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO (MATHLIVE)
 # ==========================================
 global_js = """
 <script>
     const pWin = window.parent || window;
     const pDoc = pWin.document;
 
+    // --- BẢO VỆ CÔNG THỨC TOÁN ---
     if (!pDoc.querySelector('meta[name="google"]')) {
         let meta = pDoc.createElement('meta');
         meta.name = 'google';
@@ -29,6 +30,7 @@ global_js = """
     pDoc.documentElement.setAttribute('translate', 'no');
     pDoc.body.classList.add('notranslate');
 
+    // --- ÉP CỘT ĐỒNG HỒ TRƯỢT THEO (STICKY) ---
     function makeSticky() {
         let containers = pDoc.querySelectorAll('.stMain > div, .block-container');
         containers.forEach(c => {
@@ -47,23 +49,21 @@ global_js = """
     }
     setInterval(makeSticky, 500);
 
+    // --- TỰ ĐỘNG BẬT TOÀN MÀN HÌNH ---
     pDoc.addEventListener('click', function(e) {
         let btn = e.target.closest('button');
         if (btn) {
             let txt = btn.innerText || btn.textContent;
             if (txt.includes('ĐĂNG NHẬP')) {
                 let docEl = pDoc.documentElement;
-                if (docEl.requestFullscreen) {
-                    docEl.requestFullscreen().catch(err => console.log(err));
-                } else if (docEl.webkitRequestFullscreen) {
-                    docEl.webkitRequestFullscreen();
-                } else if (docEl.msRequestFullscreen) {
-                    docEl.msRequestFullscreen();
-                }
+                if (docEl.requestFullscreen) docEl.requestFullscreen().catch(err => console.log(err));
+                else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+                else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
             }
         }
     });
 
+    // --- ẨN NÚT "GianLan" ---
     setInterval(() => {
         let btns = pDoc.querySelectorAll('button');
         btns.forEach(b => {
@@ -78,50 +78,56 @@ global_js = """
         });
     }, 100);
 
+    // --- NHÚNG THƯ VIỆN BÀN PHÍM TOÁN (MATHLIVE) TƯƠNG TỰ DESMOS ---
+    if (!pWin.customElements.get('math-field')) {
+        let script = pDoc.createElement('script');
+        script.src = 'https://unpkg.com/mathlive';
+        pDoc.head.appendChild(script);
+    }
+
+    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN ---
     setInterval(() => {
+        // Chỉ chạy khi thư viện MathLive đã tải xong
+        if (!pWin.customElements.get('math-field')) return;
+
         let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
         inputs.forEach(input => {
             let container = input.closest('div[data-testid="stTextInput"]');
-            if (container && !container.querySelector('.math-toolbar')) {
-                let toolbar = pDoc.createElement('div');
-                toolbar.className = 'math-toolbar';
-                toolbar.innerHTML = `
-                    <button type="button" data-val="\\\\frac{}{} " title="Phân số">a/b</button>
-                    <button type="button" data-val="\\\\sqrt{} " title="Căn bậc 2">√x</button>
-                    <button type="button" data-val="\\\\sqrt[3]{} " title="Căn bậc 3">∛x</button>
-                    <button type="button" data-val="^{} " title="Lũy thừa">xⁿ</button>
-                    <button type="button" data-val="\\\\pi " title="Số Pi">π</button>
-                `;
-                
-                input.parentNode.insertBefore(toolbar, input);
+            if (container && !container.querySelector('math-field')) {
+                // Ẩn ô nhập liệu bằng chữ gốc của Streamlit
+                input.style.display = 'none';
 
-                let btns = toolbar.querySelectorAll('button');
-                btns.forEach(b => {
-                    b.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        let start = input.selectionStart;
-                        let end = input.selectionEnd;
-                        let val = b.getAttribute('data-val');
-                        let text = input.value;
-                        let newText = text.substring(0, start) + val + text.substring(end);
-                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-                        nativeInputValueSetter.call(input, newText);
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                        
-                        let offset = val.indexOf('{}');
-                        if (offset !== -1) {
-                            input.setSelectionRange(start + offset + 1, start + offset + 1);
-                        } else {
-                            input.setSelectionRange(start + val.length, start + val.length);
-                        }
-                        input.focus();
-                    });
+                // Tạo ô gõ Toán học trực quan
+                let mf = pDoc.createElement('math-field');
+                
+                // CSS trang trí ô gõ toán chuẩn Cyberpunk
+                mf.style.width = '100%';
+                mf.style.fontSize = '1.8rem';
+                mf.style.backgroundColor = '#050505';
+                mf.style.color = '#ffffff';
+                mf.style.border = '2px solid #00f3ff';
+                mf.style.borderRadius = '5px';
+                mf.style.padding = '10px';
+                mf.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.2) inset';
+                mf.style.outline = 'none';
+                
+                // Khôi phục giá trị cũ (nếu học sinh lùi lại câu hỏi trước)
+                mf.value = input.value;
+
+                // Đồng bộ dữ liệu khi học sinh gõ trên bảng Toán ảo vào ô ẩn của Streamlit
+                mf.addEventListener('input', (ev) => {
+                    let latex = mf.value; // Lấy mã LaTeX tự động từ MathLive
+                    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                    nativeInputValueSetter.call(input, latex);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
                 });
+
+                input.parentNode.insertBefore(mf, input);
             }
         });
     }, 500);
 
+    // --- HỆ THỐNG CHỐNG GIAN LẬN ---
     if (!pWin.antiCheatTracker_v4) {
         pWin.antiCheatTracker_v4 = true;
         pWin.lastCheatTime = 0;
@@ -135,6 +141,7 @@ global_js = """
                 if (txt && (txt.includes('NỘP BÀI') || txt.includes('HOÀN THÀNH'))) isTesting = true;
             });
             if (!isTesting) return;
+            
             allBtns.forEach(b => {
                 if (b.innerText === 'GianLan') {
                     pWin.lastCheatTime = now;
@@ -191,10 +198,6 @@ cyber_css = """
     div[data-testid="stRadio"] label { cursor: pointer !important; }
     div[data-testid="stRadio"] label p { font-size: 1.1rem !important; font-weight: bold !important; color: #00f3ff !important; }
 
-    .math-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    .math-toolbar button { background-color: #050505 !important; color: #00f3ff !important; border: 1px solid #005f66 !important; border-radius: 4px !important; padding: 6px 12px !important; font-family: monospace !important; font-size: 1rem !important; font-weight: bold !important; cursor: pointer !important; transition: all 0.2s ease !important; }
-    .math-toolbar button:hover { background-color: #001a1a !important; border-color: #00f3ff !important; box-shadow: 0 0 10px rgba(0, 243, 255, 0.4) inset !important; }
-
     .katex, .katex-html { font-size: 1.1em !important; color: #00f3ff !important; }
 
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button { font-size: 1.1rem !important; padding: 5px !important; min-height: 40px !important; }
@@ -222,6 +225,12 @@ cyber_css = """
     div[data-testid="stVerticalBlock"]:has(> div #table-d2) p { font-size: 1.2rem !important; line-height: 1.5 !important; margin: 0 !important; color: #ffffff !important; }
     div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[role="radiogroup"] { flex-direction: row !important; justify-content: flex-end !important; gap: 20px !important; padding-right: 15px !important; }
     div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-baseweb="radio"] label p { font-size: 1.1rem !important; color: #ffffff !important; margin-left: 5px !important; }
+
+    @media (max-width: 768px) {
+        div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
+        .cyber-login-title { font-size: 1.5rem !important; }
+        .cyber-top-text { font-size: 0.9rem !important; }
+    }
 </style>
 """
 st.markdown(cyber_css, unsafe_allow_html=True)
@@ -241,30 +250,23 @@ def call_api(payload):
         return res.json()
     except: return None
 
-# --- HÀM TẠO ĐỀ THI TỪ 3 DANH SÁCH RIÊNG BIỆT ---
 def generate_exam(questions_dict, config):
     exam_questions = []
     
-    # Rút ngẫu nhiên Dạng 1
     d1_groups = {}
-    for row in questions_dict.get('Dang1', []):
-        d1_groups.setdefault(row.get('MaNhom', ''), []).append(row)
+    for row in questions_dict.get('Dang1', []): d1_groups.setdefault(row.get('MaNhom', ''), []).append(row)
     if d1_groups:
         for group in random.sample(list(d1_groups.values()), min(int(config.get("So_Cau_D1", 10)), len(d1_groups))): 
             exam_questions.append(random.choice(group))
             
-    # Rút ngẫu nhiên Dạng 2
     d2_groups = {}
-    for row in questions_dict.get('Dang2', []):
-        d2_groups.setdefault(row.get('MaNhom', ''), []).append(row)
+    for row in questions_dict.get('Dang2', []): d2_groups.setdefault(row.get('MaNhom', ''), []).append(row)
     if d2_groups:
         for group in random.sample(list(d2_groups.values()), min(int(config.get("So_Cau_D2", 1)), len(d2_groups))): 
             exam_questions.append(random.choice(group))
             
-    # Rút ngẫu nhiên Dạng 3
     d3_groups = {}
-    for row in questions_dict.get('Dang3', []):
-        d3_groups.setdefault(row.get('MaNhom', ''), []).append(row)
+    for row in questions_dict.get('Dang3', []): d3_groups.setdefault(row.get('MaNhom', ''), []).append(row)
     if d3_groups:
         for group in random.sample(list(d3_groups.values()), min(int(config.get("So_Cau_D3", 1)), len(d3_groups))): 
             exam_questions.append(random.choice(group))
@@ -281,7 +283,7 @@ if 'exam_state' not in st.session_state:
     st.session_state.cheat_count = 0 
 
 # ==========================================
-# 4. MÀN HÌNH ĐĂNG NHẬP (CYBER BOX)
+# 4. MÀN HÌNH ĐĂNG NHẬP
 # ==========================================
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -316,7 +318,6 @@ if st.session_state.exam_state == 'LOGIN':
                                 st.session_state.ho_ten = res.get("hoTen")
                                 st.session_state.lop = res.get("lop")
                                 st.session_state.config = res.get("config", {}) 
-                                # Đưa dữ liệu 3 dạng vào hàm xử lý
                                 st.session_state.questions = generate_exam(res.get("questions", {}), st.session_state.config)
                                 st.session_state.start_time = time.time()
                                 st.session_state.current_q_index = 0
@@ -489,8 +490,12 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 
             elif dang == 3:
                 st.markdown("<div style='padding: 25px;'>", unsafe_allow_html=True)
+                st.info("💡 Bấm vào ô bên dưới, bàn phím Toán học sẽ xuất hiện để bạn nhập công thức dễ dàng!")
                 saved_ans = st.session_state.answers.get(q_id, "")
+                
+                # Ô input gốc giờ đây sẽ được Javascript ẩn đi và đắp giao diện MathLive lên trên
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
+                
                 st.session_state.answers[q_id] = val
                 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -506,7 +511,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 else:
                     if st.button("XÁC NHẬN NỘP BÀI", type="primary", use_container_width=True): st.session_state.trigger_submit = True; st.rerun()
 
-    # XỬ LÝ NỘP BÀI
+    # XỬ LÝ CHẤM ĐIỂM GỬI LÊN MÁY CHỦ
     if submit_btn or st.session_state.get('trigger_submit', False):
         st.session_state.trigger_submit = False
         diem = 0.0
