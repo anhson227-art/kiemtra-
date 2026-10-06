@@ -12,7 +12,7 @@ API_URL = "https://script.google.com/macros/s/AKfycbzAXrdKJbHeus5XfIS3F9hf_USz3a
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN HỌC, CHỐNG GIAN LẬN & TOÀN MÀN HÌNH
+# 1. BẢO VỆ TOÁN HỌC, CHỐNG GIAN LẬN, TOÀN MÀN HÌNH & TOOLBAR TOÁN
 # ==========================================
 global_js = """
 <script>
@@ -67,38 +67,94 @@ global_js = """
         }
     });
 
-    // --- ẨN NÚT "GianLan" HOÀN TOÀN BẰNG JAVASCRIPT ---
+    // --- ẨN NÚT "GianLan" AN TOÀN ĐỂ VẪN CLICK ĐƯỢC ---
     setInterval(() => {
         let btns = pDoc.querySelectorAll('button');
         btns.forEach(b => {
             if (b.innerText === 'GianLan') {
-                b.style.display = 'none'; 
                 let wrapper = b.closest('div[data-testid="stElementContainer"]');
                 if (wrapper) {
-                    wrapper.style.display = 'none'; 
-                    wrapper.style.height = '0px';
+                    wrapper.style.opacity = '0.01'; 
+                    wrapper.style.position = 'absolute';
+                    wrapper.style.top = '-9999px';
                 }
             }
         });
     }, 100);
 
-    // --- HỆ THỐNG CHỐNG GIAN LẬN BẮT GỬI TÍN HIỆU VỀ PYTHON ---
-    if (!pWin.antiCheatTracker_v3) {
-        pWin.antiCheatTracker_v3 = true;
+    // --- TẠO THANH CÔNG CỤ TOÁN HỌC CHO DẠNG 3 ---
+    setInterval(() => {
+        let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
+        inputs.forEach(input => {
+            let container = input.closest('div[data-testid="stTextInput"]');
+            if (container && !container.querySelector('.math-toolbar')) {
+                let toolbar = pDoc.createElement('div');
+                toolbar.className = 'math-toolbar';
+                toolbar.innerHTML = `
+                    <button type="button" data-val="\\\\frac{}{} " title="Phân số">a/b</button>
+                    <button type="button" data-val="\\\\sqrt{} " title="Căn bậc 2">√x</button>
+                    <button type="button" data-val="\\\\sqrt[3]{} " title="Căn bậc 3">∛x</button>
+                    <button type="button" data-val="^{} " title="Lũy thừa">xⁿ</button>
+                    <button type="button" data-val="\\\\pi " title="Số Pi">π</button>
+                `;
+                
+                input.parentNode.insertBefore(toolbar, input);
+
+                let btns = toolbar.querySelectorAll('button');
+                btns.forEach(b => {
+                    b.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let start = input.selectionStart;
+                        let end = input.selectionEnd;
+                        let val = b.getAttribute('data-val');
+                        let text = input.value;
+                        
+                        let newText = text.substring(0, start) + val + text.substring(end);
+                        
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                        nativeInputValueSetter.call(input, newText);
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        
+                        let offset = val.indexOf('{}');
+                        if (offset !== -1) {
+                            input.setSelectionRange(start + offset + 1, start + offset + 1);
+                        } else {
+                            input.setSelectionRange(start + val.length, start + val.length);
+                        }
+                        input.focus();
+                    });
+                });
+            }
+        });
+    }, 500);
+
+    // --- HỆ THỐNG CHỐNG GIAN LẬN ĐÃ SỬA LỖI NHẬN DIỆN ---
+    if (!pWin.antiCheatTracker_v4) {
+        pWin.antiCheatTracker_v4 = true;
         pWin.lastCheatTime = 0;
         
         function triggerPythonCheat() {
             let now = Date.now();
             if (now - pWin.lastCheatTime < 2000) return; 
             
-            let bodyText = pDoc.body.innerText || "";
-            if (!bodyText.includes("THỜI GIAN CÒN LẠI")) return;
+            // Dùng nút NỘP BÀI để nhận diện màn hình thi thay vì đồng hồ
+            let isTesting = false;
+            let allBtns = pDoc.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                let txt = btn.innerText || btn.textContent;
+                if (txt && (txt.includes('NỘP BÀI') || txt.includes('HOÀN THÀNH'))) {
+                    isTesting = true;
+                }
+            });
 
-            let btns = pDoc.querySelectorAll('button');
-            btns.forEach(b => {
+            if (!isTesting) return; // Không có nút Nộp bài -> Không phạt
+
+            allBtns.forEach(b => {
                 if (b.innerText === 'GianLan') {
                     pWin.lastCheatTime = now;
-                    b.click(); // Âm thầm tự động click gửi về máy chủ
+                    b.click(); // Âm thầm tự động click
                 }
             });
         }
@@ -189,6 +245,28 @@ cyber_css = """
         background-color: #050505 !important; color: #00f3ff !important;
         border: 1px solid #005f66 !important; border-radius: 0px !important;
         font-size: 1.1rem !important; padding: 10px !important;
+    }
+
+    /* CSS CHO THANH TOOLBAR TOÁN HỌC DẠNG 3 */
+    .math-toolbar {
+        display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .math-toolbar button {
+        background-color: #050505 !important;
+        color: #00f3ff !important;
+        border: 1px solid #005f66 !important;
+        border-radius: 4px !important;
+        padding: 6px 12px !important;
+        font-family: monospace !important;
+        font-size: 1rem !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .math-toolbar button:hover {
+        background-color: #001a1a !important;
+        border-color: #00f3ff !important;
+        box-shadow: 0 0 10px rgba(0, 243, 255, 0.4) inset !important;
     }
 
     /* CHUẨN HÓA LẠI CỠ CHỮ TOÁN HỌC (KATEX) */
@@ -345,18 +423,15 @@ with st.spinner('Đang kết nối hệ thống máy chủ...'):
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
-        # Ô MÀU XANH PHÍA TRÊN CHỨA TÊN TRƯỜNG: Thu hẹp margin, đưa về 3.0rem
         st.markdown("""
         <div style='background: #000000; border: 1px solid #00f3ff; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 10px; overflow: hidden;'>
             <h1 style='color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3.0rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
         </div>
         """, unsafe_allow_html=True)
         
-        # BIỂU TƯỢNG VÀ TIÊU ĐỀ: Ép khoảng cách sát lại
         st.markdown("<div style='text-align: center; font-size: 2.5rem; margin-top: 0px; margin-bottom: -10px;'>🖧</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='cyber-login-title' style='margin-bottom: 0px;'>{system_config.get('Tieu_De', 'BÀI KIỂM TRA MÔN TOÁN')}</div>", unsafe_allow_html=True)
         
-        # TÊN TÁC GIẢ PHÍA TRÊN PHẦN LƯU Ý
         st.markdown("<div style='text-align: center; color: #00f3ff; font-family: monospace; font-size: 1.1rem; margin-top: 5px; margin-bottom: 15px; font-weight: bold;'>TÁC GIẢ: TRẦN VĂN LINH</div>", unsafe_allow_html=True)
         
         if system_config.get("Ghi_Chu", ""): 
@@ -365,7 +440,6 @@ if st.session_state.exam_state == 'LOGIN':
         ho_ten = st.text_input("> TÊN_HỌC_SINH", placeholder="NHẬP_DỮ_LIỆU...")
         lop = st.text_input("> MÃ_LỚP", placeholder="NHẬP_DỮ_LIỆU...")
         
-        # Thêm xíu khoảng cách trước nút XÁC THỰC thay vì dòng st.write() rộng lớn
         st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         
         if st.button("XÁC THỰC ➔", type="primary", use_container_width=True):
@@ -389,7 +463,6 @@ if st.session_state.exam_state == 'LOGIN':
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
-    # --- HEADER LỚN TRƯỜNG THCS VINH PHÚ 1 TRONG BÀI THI, ÉP KHÔNG XUỐNG DÒNG VÀ 3.0REM ---
     st.markdown("""
     <div style="text-align: center; padding-bottom: 15px; border-bottom: 1px dashed #005f66; margin-bottom: 20px; overflow: hidden;">
         <h1 style="color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3.0rem); white-space: nowrap; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(255,255,255,0.6);">TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
@@ -401,7 +474,6 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
     current_idx = st.session_state.current_q_index
     q = st.session_state.questions[current_idx]
     
-    # NÚT TÀNG HÌNH NHẬN TÍN HIỆU GIAN LẬN
     if st.button("GianLan"):
         st.session_state.cheat_count += 1
         if st.session_state.cheat_count >= 3:
