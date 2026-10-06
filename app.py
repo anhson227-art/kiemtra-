@@ -12,7 +12,7 @@ API_URL = "https://script.google.com/macros/s/AKfycbyhMvS3sdXpqfQmA2lr5sFoG-0nG5
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO (MATHLIVE)
+# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO THCS (MATHLIVE)
 # ==========================================
 global_js = """
 <script>
@@ -85,44 +85,73 @@ global_js = """
         pDoc.head.appendChild(script);
     }
 
-    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN ---
+    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ ---
     setInterval(() => {
-        // Chỉ chạy khi thư viện MathLive đã tải xong
         if (!pWin.customElements.get('math-field')) return;
 
         let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
         inputs.forEach(input => {
             let container = input.closest('div[data-testid="stTextInput"]');
             if (container && !container.querySelector('math-field')) {
-                // Ẩn ô nhập liệu bằng chữ gốc của Streamlit
-                input.style.display = 'none';
+                
+                input.style.display = 'none'; // Ẩn ô nhập liệu bằng chữ gốc
 
-                // Tạo ô gõ Toán học trực quan
+                // 1. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD)
                 let mf = pDoc.createElement('math-field');
+                mf.mathVirtualKeyboardPolicy = 'manual'; // Tắt bàn phím Đại học mặc định của MathLive
+                mf.value = input.value; // Khôi phục giá trị nếu có
                 
-                // CSS trang trí ô gõ toán chuẩn Cyberpunk
-                mf.style.width = '100%';
-                mf.style.fontSize = '1.8rem';
-                mf.style.backgroundColor = '#050505';
-                mf.style.color = '#ffffff';
-                mf.style.border = '2px solid #00f3ff';
-                mf.style.borderRadius = '5px';
-                mf.style.padding = '10px';
-                mf.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.2) inset';
-                mf.style.outline = 'none';
-                
-                // Khôi phục giá trị cũ (nếu học sinh lùi lại câu hỏi trước)
-                mf.value = input.value;
-
-                // Đồng bộ dữ liệu khi học sinh gõ trên bảng Toán ảo vào ô ẩn của Streamlit
+                // Đồng bộ dữ liệu sang Python khi học sinh gõ
                 mf.addEventListener('input', (ev) => {
-                    let latex = mf.value; // Lấy mã LaTeX tự động từ MathLive
+                    let latex = mf.value; 
                     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
                     nativeInputValueSetter.call(input, latex);
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 });
-
+                
+                // Chèn Bảng Toán lên trên cùng
                 input.parentNode.insertBefore(mf, input);
+
+                // 2. TẠO BÀN PHÍM ẢO THCS CYBERPUNK BÊN DƯỚI
+                let toolbar = pDoc.createElement('div');
+                toolbar.className = 'math-toolbar';
+                toolbar.innerHTML = `
+                    <button type="button" data-val="\\\\frac{#?}{#?}" title="Phân số">■ / ■</button>
+                    <button type="button" data-val="^{2}" title="Bình phương">x²</button>
+                    <button type="button" data-val="^{#?}" title="Lũy thừa">xⁿ</button>
+                    <button type="button" data-val="\\\\sqrt{#?}" title="Căn bậc 2">√</button>
+                    <button type="button" data-val="\\\\sqrt[3]{#?}" title="Căn bậc 3">∛</button>
+                    <button type="button" data-val="\\\\pi" title="Số Pi">π</button>
+                    <button type="button" data-val="+" title="Cộng">+</button>
+                    <button type="button" data-val="-" title="Trừ">-</button>
+                    <button type="button" data-val="\\\\times" title="Nhân">×</button>
+                    <button type="button" data-val="\\\\div" title="Chia">÷</button>
+                    <button type="button" data-val="(" title="Mở ngoặc">(</button>
+                    <button type="button" data-val=")" title="Đóng ngoặc">)</button>
+                `;
+                
+                // Chèn Bàn phím ngay dưới Bảng Toán
+                input.parentNode.insertBefore(toolbar, mf.nextSibling);
+
+                // Lập trình cho các phím ảo: Bấm vào là gõ, con trỏ tự chui vào ô trống
+                let btns = toolbar.querySelectorAll('button');
+                btns.forEach(b => {
+                    b.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        let val = b.getAttribute('data-val');
+                        
+                        // Hàm insert thông minh của MathLive (Tự nhảy con trỏ)
+                        mf.insert(val); 
+                        
+                        // Đồng bộ lại với Python
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                        nativeInputValueSetter.call(input, mf.value);
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        
+                        mf.focus(); // Giữ sáng bảng toán
+                    });
+                });
             }
         });
     }, 500);
@@ -198,6 +227,51 @@ cyber_css = """
     div[data-testid="stRadio"] label { cursor: pointer !important; }
     div[data-testid="stRadio"] label p { font-size: 1.1rem !important; font-weight: bold !important; color: #00f3ff !important; }
 
+    /* ========================================= */
+    /* CSS CHO BẢNG GÕ TOÁN TRỰC QUAN (SIÊU TO)  */
+    /* ========================================= */
+    math-field {
+        font-size: 3.0rem !important; /* Chữ Toán cực lớn */
+        width: 100% !important;
+        background-color: #000000 !important;
+        color: #00f3ff !important;
+        border: 2px solid #d946ef !important; /* Viền Tím Cyberpunk */
+        border-radius: 12px !important;
+        padding: 25px 20px !important;
+        min-height: 120px !important;
+        box-shadow: 0 0 20px rgba(217, 70, 239, 0.2) inset, 0 0 15px rgba(217, 70, 239, 0.3) !important;
+        outline: none !important;
+        --caret-color: #00f3ff !important;
+        --selection-background-color: rgba(0, 243, 255, 0.3) !important;
+    }
+    math-field::part(virtual-keyboard-toggle) { display: none !important; } /* Ẩn nút bàn phím mặc định rườm rà */
+    math-field::part(menu-toggle) { display: none !important; }
+
+    /* CSS CHO BÀN PHÍM ẢO THCS Ở DƯỚI */
+    .math-toolbar { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
+        gap: 12px; 
+        margin-top: 15px; 
+        margin-bottom: 10px; 
+        background: #001a1a; 
+        padding: 15px; 
+        border: 1px solid #005f66; 
+        border-radius: 12px;
+    }
+    .math-toolbar button { 
+        background-color: #050505 !important; color: #00f3ff !important; 
+        border: 1px solid #00f3ff !important; border-radius: 8px !important; 
+        padding: 15px 10px !important; font-family: 'Segoe UI', monospace !important; 
+        font-size: 1.5rem !important; font-weight: bold !important; 
+        cursor: pointer !important; transition: all 0.1s ease !important;
+        box-shadow: 0 5px 0 #005f66 !important;
+    }
+    .math-toolbar button:active { 
+        transform: translateY(5px); box-shadow: 0 0 0 #005f66 !important; 
+        background-color: #00f3ff !important; color: #000000 !important;
+    }
+
     .katex, .katex-html { font-size: 1.1em !important; color: #00f3ff !important; }
 
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button { font-size: 1.1rem !important; padding: 5px !important; min-height: 40px !important; }
@@ -230,6 +304,7 @@ cyber_css = """
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
         .cyber-login-title { font-size: 1.5rem !important; }
         .cyber-top-text { font-size: 0.9rem !important; }
+        math-field { font-size: 2.0rem !important; }
     }
 </style>
 """
@@ -490,12 +565,9 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 
             elif dang == 3:
                 st.markdown("<div style='padding: 25px;'>", unsafe_allow_html=True)
-                st.info("💡 Bấm vào ô bên dưới, bàn phím Toán học sẽ xuất hiện để bạn nhập công thức dễ dàng!")
+                st.info("💡 Hệ thống đã tự động bật Bảng gõ Toán học trực quan. Bạn có thể sử dụng Bàn phím ảo bên dưới để nhập Phân số, Căn, Lũy thừa...")
                 saved_ans = st.session_state.answers.get(q_id, "")
-                
-                # Ô input gốc giờ đây sẽ được Javascript ẩn đi và đắp giao diện MathLive lên trên
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
-                
                 st.session_state.answers[q_id] = val
                 st.markdown("</div>", unsafe_allow_html=True)
 
