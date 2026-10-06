@@ -12,7 +12,7 @@ API_URL = "https://script.google.com/macros/s/AKfycbyhMvS3sdXpqfQmA2lr5sFoG-0nG5
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
 # ==========================================
-# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO THCS (MATHLIVE)
+# 1. BẢO VỆ TOÁN, CHỐNG GIAN LẬN & BÀN PHÍM TOÁN ẢO THCS (ĐÃ SỬA LỖI HIỂN THỊ)
 # ==========================================
 global_js = """
 <script>
@@ -78,41 +78,58 @@ global_js = """
         });
     }, 100);
 
-    // --- NHÚNG THƯ VIỆN BÀN PHÍM TOÁN (MATHLIVE) TƯƠNG TỰ DESMOS ---
+    // --- NHÚNG THƯ VIỆN BÀN PHÍM TOÁN (MATHLIVE) ---
     if (!pWin.customElements.get('math-field')) {
         let script = pDoc.createElement('script');
         script.src = 'https://unpkg.com/mathlive';
         pDoc.head.appendChild(script);
     }
 
-    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ ---
+    // --- BIẾN Ô NHẬP DẠNG 3 THÀNH BẢNG GÕ TOÁN TRỰC QUAN KHỔNG LỒ (ĐÃ SỬA LỖI ÉP KHUNG) ---
     setInterval(() => {
         if (!pWin.customElements.get('math-field')) return;
 
         let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
         inputs.forEach(input => {
+            // Tìm khung chứa to nhất của Streamlit
             let container = input.closest('div[data-testid="stTextInput"]');
+            
             if (container && !container.querySelector('math-field')) {
                 
-                input.style.display = 'none'; // Ẩn ô nhập liệu bằng chữ gốc
+                // 1. ẨN HOÀN TOÀN KHUNG GỐC CỦA STREAMLIT (Tránh bị ép Flexbox)
+                let baseWebInput = container.querySelector('div[data-baseweb="input"]');
+                if (baseWebInput) {
+                    baseWebInput.style.display = 'none';
+                } else {
+                    input.style.display = 'none';
+                }
 
-                // 1. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD)
+                // 2. TẠO Ô GÕ TOÁN TRỰC QUAN (MATH-FIELD)
                 let mf = pDoc.createElement('math-field');
-                mf.mathVirtualKeyboardPolicy = 'manual'; // Tắt bàn phím Đại học mặc định của MathLive
-                mf.value = input.value; // Khôi phục giá trị nếu có
+                mf.mathVirtualKeyboardPolicy = 'manual'; // Tắt bàn phím mặc định
+                mf.value = input.value; // Khôi phục giá trị
                 
-                // Đồng bộ dữ liệu sang Python khi học sinh gõ
+                // Trực tiếp gắn style CSS vào thẻ
+                mf.style.width = '100%';
+                mf.style.display = 'block';
+                mf.style.fontSize = '2.5rem';
+                mf.style.backgroundColor = '#000000';
+                mf.style.color = '#00f3ff';
+                mf.style.border = '2px solid #d946ef';
+                mf.style.borderRadius = '12px';
+                mf.style.padding = '20px';
+                mf.style.boxShadow = '0 0 20px rgba(217, 70, 239, 0.2) inset';
+                mf.style.outline = 'none';
+                mf.style.marginTop = '10px';
+                
                 mf.addEventListener('input', (ev) => {
                     let latex = mf.value; 
                     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
                     nativeInputValueSetter.call(input, latex);
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 });
-                
-                // Chèn Bảng Toán lên trên cùng
-                input.parentNode.insertBefore(mf, input);
 
-                // 2. TẠO BÀN PHÍM ẢO THCS CYBERPUNK BÊN DƯỚI
+                // 3. TẠO BÀN PHÍM ẢO THCS
                 let toolbar = pDoc.createElement('div');
                 toolbar.className = 'math-toolbar';
                 toolbar.innerHTML = `
@@ -130,10 +147,10 @@ global_js = """
                     <button type="button" data-val=")" title="Đóng ngoặc">)</button>
                 `;
                 
-                // Chèn Bàn phím ngay dưới Bảng Toán
-                input.parentNode.insertBefore(toolbar, mf.nextSibling);
+                // CHÈN VÀO CUỐI CONTAINER (Không bị kẹp trong Flexbox)
+                container.appendChild(mf);
+                container.appendChild(toolbar);
 
-                // Lập trình cho các phím ảo: Bấm vào là gõ, con trỏ tự chui vào ô trống
                 let btns = toolbar.querySelectorAll('button');
                 btns.forEach(b => {
                     b.addEventListener('click', (e) => {
@@ -141,15 +158,13 @@ global_js = """
                         e.stopPropagation();
                         let val = b.getAttribute('data-val');
                         
-                        // Hàm insert thông minh của MathLive (Tự nhảy con trỏ)
                         mf.insert(val); 
                         
-                        // Đồng bộ lại với Python
                         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
                         nativeInputValueSetter.call(input, mf.value);
                         input.dispatchEvent(new Event('input', { bubbles: true }));
                         
-                        mf.focus(); // Giữ sáng bảng toán
+                        mf.focus();
                     });
                 });
             }
@@ -227,37 +242,19 @@ cyber_css = """
     div[data-testid="stRadio"] label { cursor: pointer !important; }
     div[data-testid="stRadio"] label p { font-size: 1.1rem !important; font-weight: bold !important; color: #00f3ff !important; }
 
-    /* ========================================= */
-    /* CSS CHO BẢNG GÕ TOÁN TRỰC QUAN (SIÊU TO)  */
-    /* ========================================= */
-    math-field {
-        font-size: 3.0rem !important; /* Chữ Toán cực lớn */
-        width: 100% !important;
-        background-color: #000000 !important;
-        color: #00f3ff !important;
-        border: 2px solid #d946ef !important; /* Viền Tím Cyberpunk */
-        border-radius: 12px !important;
-        padding: 25px 20px !important;
-        min-height: 120px !important;
-        box-shadow: 0 0 20px rgba(217, 70, 239, 0.2) inset, 0 0 15px rgba(217, 70, 239, 0.3) !important;
-        outline: none !important;
-        --caret-color: #00f3ff !important;
-        --selection-background-color: rgba(0, 243, 255, 0.3) !important;
-    }
-    math-field::part(virtual-keyboard-toggle) { display: none !important; } /* Ẩn nút bàn phím mặc định rườm rà */
-    math-field::part(menu-toggle) { display: none !important; }
-
-    /* CSS CHO BÀN PHÍM ẢO THCS Ở DƯỚI */
+    /* BÀN PHÍM ẢO THCS CYBERPUNK */
     .math-toolbar { 
-        display: grid; 
-        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
-        gap: 12px; 
-        margin-top: 15px; 
-        margin-bottom: 10px; 
-        background: #001a1a; 
-        padding: 15px; 
-        border: 1px solid #005f66; 
-        border-radius: 12px;
+        display: grid !important; 
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)) !important; 
+        gap: 12px !important; 
+        margin-top: 15px !important; 
+        margin-bottom: 10px !important; 
+        background: #001a1a !important; 
+        padding: 15px !important; 
+        border: 1px solid #005f66 !important; 
+        border-radius: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
     .math-toolbar button { 
         background-color: #050505 !important; color: #00f3ff !important; 
@@ -266,9 +263,10 @@ cyber_css = """
         font-size: 1.5rem !important; font-weight: bold !important; 
         cursor: pointer !important; transition: all 0.1s ease !important;
         box-shadow: 0 5px 0 #005f66 !important;
+        display: flex !important; justify-content: center !important; align-items: center !important;
     }
     .math-toolbar button:active { 
-        transform: translateY(5px); box-shadow: 0 0 0 #005f66 !important; 
+        transform: translateY(5px) !important; box-shadow: 0 0 0 #005f66 !important; 
         background-color: #00f3ff !important; color: #000000 !important;
     }
 
@@ -304,7 +302,6 @@ cyber_css = """
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
         .cyber-login-title { font-size: 1.5rem !important; }
         .cyber-top-text { font-size: 0.9rem !important; }
-        math-field { font-size: 2.0rem !important; }
     }
 </style>
 """
@@ -565,9 +562,12 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 
             elif dang == 3:
                 st.markdown("<div style='padding: 25px;'>", unsafe_allow_html=True)
-                st.info("💡 Hệ thống đã tự động bật Bảng gõ Toán học trực quan. Bạn có thể sử dụng Bàn phím ảo bên dưới để nhập Phân số, Căn, Lũy thừa...")
+                st.info("💡 Bạn có thể dùng Bàn phím ảo bên dưới để gõ nhanh Phân số, Căn bậc, Lũy thừa...")
                 saved_ans = st.session_state.answers.get(q_id, "")
+                
+                # Khung nhập liệu gốc của Streamlit (Sẽ được JS đè lên bằng Bảng Toán khổng lồ)
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
+                
                 st.session_state.answers[q_id] = val
                 st.markdown("</div>", unsafe_allow_html=True)
 
