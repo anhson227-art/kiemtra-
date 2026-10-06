@@ -7,7 +7,7 @@ import time
 # ==========================================
 # CẤU HÌNH API
 # ==========================================
-API_URL = "https://script.google.com/macros/s/AKfycbzAXrdKJbHeus5XfIS3F9hf_USz3aC87sCx2jNM7gTDoWLmXkokE6T8m0BzeSWfdh55XA/exec" # Dán link Google Apps Script vào đây
+API_URL = "https://script.google.com/macros/s/AKfycbzAXrdKJbHeus5XfIS3F9hf_USz3aC87sCx2jNM7gTDoWLmXkokE6T8m0BzeSWfdh55XA/exec" # Dán link Google Apps Script mới vào đây
 
 st.set_page_config(page_title="Hệ Thống Kiểm Tra", layout="wide", page_icon="💻")
 
@@ -19,7 +19,6 @@ global_js = """
     const pWin = window.parent || window;
     const pDoc = pWin.document;
 
-    // --- BẢO VỆ CÔNG THỨC TOÁN ---
     if (!pDoc.querySelector('meta[name="google"]')) {
         let meta = pDoc.createElement('meta');
         meta.name = 'google';
@@ -30,7 +29,6 @@ global_js = """
     pDoc.documentElement.setAttribute('translate', 'no');
     pDoc.body.classList.add('notranslate');
 
-    // --- ÉP CỘT ĐỒNG HỒ TRƯỢT THEO (STICKY) ---
     function makeSticky() {
         let containers = pDoc.querySelectorAll('.stMain > div, .block-container');
         containers.forEach(c => {
@@ -49,25 +47,23 @@ global_js = """
     }
     setInterval(makeSticky, 500);
 
-    // --- TỰ ĐỘNG BẬT TOÀN MÀN HÌNH KHI BẤM NÚT "XÁC THỰC" ---
     pDoc.addEventListener('click', function(e) {
         let btn = e.target.closest('button');
         if (btn) {
             let txt = btn.innerText || btn.textContent;
-            if (txt.includes('XÁC THỰC')) {
+            if (txt.includes('ĐĂNG NHẬP')) {
                 let docEl = pDoc.documentElement;
                 if (docEl.requestFullscreen) {
                     docEl.requestFullscreen().catch(err => console.log(err));
-                } else if (docEl.webkitRequestFullscreen) { /* Safari */
+                } else if (docEl.webkitRequestFullscreen) {
                     docEl.webkitRequestFullscreen();
-                } else if (docEl.msRequestFullscreen) { /* IE11 */
+                } else if (docEl.msRequestFullscreen) {
                     docEl.msRequestFullscreen();
                 }
             }
         }
     });
 
-    // --- ẨN NÚT "GianLan" AN TOÀN ĐỂ VẪN CLICK ĐƯỢC ---
     setInterval(() => {
         let btns = pDoc.querySelectorAll('button');
         btns.forEach(b => {
@@ -82,7 +78,6 @@ global_js = """
         });
     }, 100);
 
-    // --- TẠO THANH CÔNG CỤ TOÁN HỌC CHO DẠNG 3 ---
     setInterval(() => {
         let inputs = pDoc.querySelectorAll('input[placeholder="NHẬP_VÀO_ĐÂY..."]');
         inputs.forEach(input => {
@@ -130,7 +125,6 @@ global_js = """
         });
     }, 500);
 
-    // --- HỆ THỐNG CHỐNG GIAN LẬN ĐÃ SỬA LỖI NHẬN DIỆN ---
     if (!pWin.antiCheatTracker_v4) {
         pWin.antiCheatTracker_v4 = true;
         pWin.lastCheatTime = 0;
@@ -139,7 +133,6 @@ global_js = """
             let now = Date.now();
             if (now - pWin.lastCheatTime < 2000) return; 
             
-            // Dùng nút NỘP BÀI để nhận diện màn hình thi thay vì đồng hồ
             let isTesting = false;
             let allBtns = pDoc.querySelectorAll('button');
             allBtns.forEach(btn => {
@@ -149,12 +142,12 @@ global_js = """
                 }
             });
 
-            if (!isTesting) return; // Không có nút Nộp bài -> Không phạt
+            if (!isTesting) return;
 
             allBtns.forEach(b => {
                 if (b.innerText === 'GianLan') {
                     pWin.lastCheatTime = now;
-                    b.click(); // Âm thầm tự động click
+                    b.click(); 
                 }
             });
         }
@@ -164,13 +157,10 @@ global_js = """
                 triggerPythonCheat();
             }
         });
-        
         pWin.addEventListener("blur", () => {
             triggerPythonCheat();
         });
-
         pDoc.addEventListener('contextmenu', event => event.preventDefault());
-        
         pDoc.addEventListener('keydown', function(e) {
             if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && ['c', 'v', 'p'].includes(e.key.toLowerCase()))) {
                 e.preventDefault();
@@ -191,12 +181,9 @@ cyber_css = """
     header {visibility: hidden;}
     
     .block-container { 
-        padding-top: 0rem !important; 
-        padding-bottom: 1rem !important; 
-        margin-top: -30px !important;
+        padding-top: 0rem !important; padding-bottom: 1rem !important; margin-top: -30px !important;
     }
 
-    /* THANH TRƯỢT DỌC KHỔNG LỒ (CYAN) */
     [data-testid="stAppViewContainer"], .stApp { overflow-y: auto !important; }
     ::-webkit-scrollbar, *::-webkit-scrollbar, [data-testid="stAppViewContainer"]::-webkit-scrollbar {
         width: 18px !important; background-color: #050505 !important; display: block !important;
@@ -209,7 +196,6 @@ cyber_css = """
     }
     ::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover { background-color: #00b3bd !important; }
 
-    /* CƯỠNG CHẾ GIAO DIỆN DARK MODE */
     :root, body, html { color-scheme: dark !important; background-color: #050505 !important; }
     [data-testid="stAppViewContainer"], .stApp {
         background-color: #050505 !important;
@@ -223,7 +209,6 @@ cyber_css = """
         color: #e2e8f0 !important; 
     }
 
-    /* THANH TOP BAR */
     .cyber-top-bar {
         background-color: #000000; border-bottom: 2px solid #00f3ff;
         padding: 15px 25px; margin-top: -50px; margin-bottom: 20px;
@@ -232,13 +217,12 @@ cyber_css = """
     .cyber-top-arrow { color: #00f3ff; font-weight: 900; font-size: 1.4rem; margin-right: 15px; }
     .cyber-top-text { color: #ffffff; font-weight: bold; font-size: 1.2rem; letter-spacing: 2px; }
 
-    /* TIÊU ĐỀ LOGIN */
     .cyber-login-title {
         text-align: center; color: #ffffff; font-weight: 900; font-size: 2rem; 
         letter-spacing: 3px; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 5px; margin-bottom: 5px;
     }
 
-    /* Ô NHẬP LIỆU */
+    /* ĐỊNH DẠNG Ô NHẬP LIỆU & TAB LOGIN */
     div[data-testid="stTextInput"] { margin-bottom: -10px !important; }
     div[data-testid="stTextInput"] label p { color: #00f3ff !important; font-size: 1rem !important; margin-bottom: 5px !important;}
     div[data-testid="stTextInput"] input {
@@ -246,117 +230,67 @@ cyber_css = """
         border: 1px solid #005f66 !important; border-radius: 0px !important;
         font-size: 1.1rem !important; padding: 10px !important;
     }
+    
+    /* Giao diện thanh chọn Đăng nhập / Đổi mật khẩu */
+    div[data-testid="stRadio"] > div { flex-direction: row !important; background: #000000 !important; border: 1px solid #005f66 !important; padding: 10px !important; margin-bottom: 15px !important; justify-content: space-around !important; }
+    div[data-testid="stRadio"] label { cursor: pointer !important; }
+    div[data-testid="stRadio"] label p { font-size: 1.1rem !important; font-weight: bold !important; color: #00f3ff !important; }
 
-    /* CSS CHO THANH TOOLBAR TOÁN HỌC DẠNG 3 */
     .math-toolbar {
         display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
     }
     .math-toolbar button {
-        background-color: #050505 !important;
-        color: #00f3ff !important;
-        border: 1px solid #005f66 !important;
-        border-radius: 4px !important;
-        padding: 6px 12px !important;
-        font-family: monospace !important;
-        font-size: 1rem !important;
-        font-weight: bold !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease !important;
+        background-color: #050505 !important; color: #00f3ff !important;
+        border: 1px solid #005f66 !important; border-radius: 4px !important;
+        padding: 6px 12px !important; font-family: monospace !important;
+        font-size: 1rem !important; font-weight: bold !important;
+        cursor: pointer !important; transition: all 0.2s ease !important;
     }
     .math-toolbar button:hover {
-        background-color: #001a1a !important;
-        border-color: #00f3ff !important;
+        background-color: #001a1a !important; border-color: #00f3ff !important;
         box-shadow: 0 0 10px rgba(0, 243, 255, 0.4) inset !important;
     }
 
-    /* CHUẨN HÓA LẠI CỠ CHỮ TOÁN HỌC (KATEX) */
-    .katex, .katex-html { 
-        font-size: 1.1em !important; 
-        color: #00f3ff !important; 
-    }
+    .katex, .katex-html { font-size: 1.1em !important; color: #00f3ff !important; }
 
-    /* NÚT BẤM BẢNG ĐIỀU HƯỚNG C1, C2 */
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button {
         font-size: 1.1rem !important; padding: 5px !important; min-height: 40px !important;
     }
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button[kind="primary"] {
-        background: #701a75 !important; color: #ffffff !important; border: 1px solid #d946ef !important; 
-        box-shadow: 0 0 10px rgba(217, 70, 239, 0.4) !important;
+        background: #701a75 !important; color: #ffffff !important; border: 1px solid #d946ef !important; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4) !important;
     }
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button[kind="secondary"] {
         background: #000000 !important; color: #00f3ff !important; border: 1px solid #005f66 !important; 
     }
     div[data-testid="stVerticalBlock"]:has(span#nav-grid-marker) div[data-testid="stButton"] button:hover { border-color: #00f3ff !important; }
 
-    /* NÚT XÁC NHẬN / NỘP BÀI */
     div[data-testid="stButton"] button[kind="primary"] {
-        background: #3b0764 !important; color: #d946ef !important; 
-        border: 1px solid #a21caf !important; border-radius: 0px !important; 
-        padding: 10px !important; font-size: 1.1rem !important; font-weight: bold !important;
-        letter-spacing: 1px !important; text-transform: uppercase !important; margin-top: 10px !important;
+        background: #3b0764 !important; color: #d946ef !important; border: 1px solid #a21caf !important; border-radius: 0px !important; 
+        padding: 10px !important; font-size: 1.1rem !important; font-weight: bold !important; letter-spacing: 1px !important; text-transform: uppercase !important; margin-top: 10px !important;
     }
-    div[data-testid="stButton"] button[kind="primary"]:hover {
-        background: #581c87 !important; color: #ffffff !important; box-shadow: 0 0 15px rgba(192, 38, 211, 0.6) !important;
-    }
+    div[data-testid="stButton"] button[kind="primary"]:hover { background: #581c87 !important; color: #ffffff !important; box-shadow: 0 0 15px rgba(192, 38, 211, 0.6) !important; }
     div[data-testid="stButton"] button[kind="secondary"] {
-        background: transparent !important; color: #00f3ff !important; border: 1px solid #00f3ff !important;
-        border-radius: 0px !important; padding: 10px !important; width: 100% !important; font-size: 1.1rem !important;
+        background: transparent !important; color: #00f3ff !important; border: 1px solid #00f3ff !important; border-radius: 0px !important; padding: 10px !important; width: 100% !important; font-size: 1.1rem !important;
     }
 
-    /* KHUNG CÂU HỎI CHÍNH */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: #000000 !important; border: 1px solid #00f3ff !important; 
-        border-radius: 0px !important; margin-bottom: 30px !important;
-        box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset !important;
+        background: #000000 !important; border: 1px solid #00f3ff !important; border-radius: 0px !important; margin-bottom: 30px !important; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset !important;
     }
-    .q-header-box {
-        background: #001a1a; color: #00f3ff !important;
-        font-weight: bold; font-size: 1.2rem; padding: 10px 20px;
-        border-bottom: 1px solid #00f3ff; text-transform: uppercase; letter-spacing: 1px;
-    }
-    h4 {
-        padding: 20px 25px 10px 25px !important; font-size: 1.35rem !important;
-        font-weight: normal !important; line-height: 1.6 !important; color: #ffffff !important; margin: 0 !important;
-    }
+    .q-header-box { background: #001a1a; color: #00f3ff !important; font-weight: bold; font-size: 1.2rem; padding: 10px 20px; border-bottom: 1px solid #00f3ff; text-transform: uppercase; letter-spacing: 1px; }
+    h4 { padding: 20px 25px 10px 25px !important; font-size: 1.35rem !important; font-weight: normal !important; line-height: 1.6 !important; color: #ffffff !important; margin: 0 !important; }
     
-    /* DẠNG 1: LƯỚI ĐÁP ÁN TRẮC NGHIỆM 2x2 */
-    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] {
-        display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 15px !important;
-        width: 100% !important; padding: 10px 25px 25px 25px !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] > label {
-        background-color: #0a0a0a !important; border: 1px solid #005f66 !important; border-radius: 0px !important;
-        padding: 15px !important; margin: 0 !important; display: flex !important; align-items: center !important;
-        min-height: 70px !important; transition: all 0.2s ease !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] > label:hover {
-        background-color: #001a1a !important; border-color: #00f3ff !important;
-        box-shadow: 0 0 10px rgba(0, 243, 255, 0.2) inset !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] label p {
-        font-size: 1.2rem !important; color: #ffffff !important; margin-left: 10px !important; line-height: 1.5 !important;
-    }
+    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 15px !important; width: 100% !important; padding: 10px 25px 25px 25px !important; }
+    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] > label { background-color: #0a0a0a !important; border: 1px solid #005f66 !important; padding: 15px !important; margin: 0 !important; display: flex !important; align-items: center !important; min-height: 70px !important; transition: all 0.2s ease !important; }
+    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] > label:hover { background-color: #001a1a !important; border-color: #00f3ff !important; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2) inset !important; }
+    div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] label p { font-size: 1.2rem !important; color: #ffffff !important; margin-left: 10px !important; line-height: 1.5 !important; }
 
-    /* DẠNG 2: MỆNH ĐỀ ĐÚNG SAI */
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) {
-        border: none !important; background: transparent !important; margin: 10px 25px 20px 25px !important; padding: 0 !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) > div[data-testid="stHorizontalBlock"] {
-        border-bottom: 1px dashed #005f66 !important; padding: 10px 0 !important; align-items: center !important;
-    }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) { border: none !important; background: transparent !important; margin: 10px 25px 20px 25px !important; padding: 0 !important; }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) > div[data-testid="stHorizontalBlock"] { border-bottom: 1px dashed #005f66 !important; padding: 10px 0 !important; align-items: center !important; }
     div[data-testid="stVerticalBlock"]:has(> div #table-d2) > div[data-testid="stHorizontalBlock"]:last-child { border-bottom: none !important; }
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-testid="column"]:first-child {
-        padding: 5px 10px !important; display: flex !important; align-items: center !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) p {
-        font-size: 1.2rem !important; line-height: 1.5 !important; margin: 0 !important; color: #ffffff !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[role="radiogroup"] {
-        flex-direction: row !important; justify-content: flex-end !important; gap: 20px !important; padding-right: 15px !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-baseweb="radio"] label p {
-        font-size: 1.1rem !important; color: #ffffff !important; margin-left: 5px !important;
-    }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-testid="column"]:first-child { padding: 5px 10px !important; display: flex !important; align-items: center !important; }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) p { font-size: 1.2rem !important; line-height: 1.5 !important; margin: 0 !important; color: #ffffff !important; }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[role="radiogroup"] { flex-direction: row !important; justify-content: flex-end !important; gap: 20px !important; padding-right: 15px !important; }
+    div[data-testid="stVerticalBlock"]:has(> div #table-d2) div[data-baseweb="radio"] label p { font-size: 1.1rem !important; color: #ffffff !important; margin-left: 5px !important; }
 
     @media (max-width: 768px) {
         div[data-testid="stVerticalBlock"]:has(#type1-container) div[role="radiogroup"] { grid-template-columns: 1fr !important; }
@@ -378,17 +312,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 4. XỬ LÝ DỮ LIỆU & ÉP KÍCH THƯỚC PHÂN SỐ
+# 4. HÀM KẾT NỐI API POST LÊN GOOGLE SHEETS
 # ==========================================
 def fix_latex(text):
     if not text: return ""
-    text = str(text).replace(r"\frac", r"\dfrac")
-    return text
+    return str(text).replace(r"\frac", r"\dfrac")
 
-@st.cache_data(ttl=60, show_spinner=False)
-def fetch_data():
-    try: return requests.get(API_URL).json()
-    except: return None
+def call_api(payload):
+    try:
+        res = requests.post(API_URL, json=payload)
+        return res.json()
+    except:
+        return None
 
 def generate_exam(questions, config):
     d1_groups, d2_groups, d3_groups = {}, {}, {}
@@ -413,12 +348,8 @@ if 'exam_state' not in st.session_state:
     st.session_state.current_q_index = 0
     st.session_state.cheat_count = 0 
 
-with st.spinner('Đang kết nối hệ thống máy chủ...'):
-    raw_data = fetch_data()
-    system_config = raw_data['config'] if raw_data and 'config' in raw_data else {}
-
 # ==========================================
-# 5. MÀN HÌNH ĐĂNG NHẬP (CYBER BOX)
+# 5. MÀN HÌNH ĐĂNG NHẬP / ĐỔI MẬT KHẨU
 # ==========================================
 if st.session_state.exam_state == 'LOGIN':
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -430,33 +361,61 @@ if st.session_state.exam_state == 'LOGIN':
         """, unsafe_allow_html=True)
         
         st.markdown("<div style='text-align: center; font-size: 2.5rem; margin-top: 0px; margin-bottom: -10px;'>🖧</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='cyber-login-title' style='margin-bottom: 0px;'>{system_config.get('Tieu_De', 'BÀI KIỂM TRA MÔN TOÁN')}</div>", unsafe_allow_html=True)
-        
+        st.markdown("<div class='cyber-login-title' style='margin-bottom: 0px;'>HỆ THỐNG KIỂM TRA MÔN TOÁN</div>", unsafe_allow_html=True)
         st.markdown("<div style='text-align: center; color: #00f3ff; font-family: monospace; font-size: 1.1rem; margin-top: 5px; margin-bottom: 15px; font-weight: bold;'>TÁC GIẢ: TRẦN VĂN LINH</div>", unsafe_allow_html=True)
         
-        if system_config.get("Ghi_Chu", ""): 
-            st.info(system_config.get("Ghi_Chu", ""))
+        mode = st.radio("Chế độ:", ["Đăng Nhập", "Đổi Mật Khẩu"], horizontal=True, label_visibility="collapsed")
+        
+        if mode == "Đăng Nhập":
+            st.info("Lưu ý: Mật khẩu mặc định do Giáo viên cung cấp. Hãy đổi mật khẩu để bảo mật.")
             
-        ho_ten = st.text_input("> TÊN_HỌC_SINH", placeholder="NHẬP_DỮ_LIỆU...")
-        lop = st.text_input("> MÃ_LỚP", placeholder="NHẬP_DỮ_LIỆU...")
-        
-        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-        
-        if st.button("XÁC THỰC ➔", type="primary", use_container_width=True):
-            if ho_ten and lop:
-                if raw_data and 'questions' in raw_data:
-                    st.session_state.cheat_count = 0
-                    st.session_state.ho_ten = ho_ten
-                    st.session_state.lop = lop
-                    st.session_state.config = system_config 
-                    st.session_state.questions = generate_exam(raw_data['questions'], system_config)
-                    st.session_state.start_time = time.time()
-                    st.session_state.current_q_index = 0
-                    st.session_state.exam_state = 'IN_PROGRESS'
-                    st.rerun()
-                else:
-                    st.error("LỖI_KẾT_NỐI_MÁY_CHỦ")
-            else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
+            username = st.text_input("> TÀI_KHOẢN", placeholder="Nhập tên đăng nhập (Mã HS)...")
+            password = st.text_input("> MẬT_KHẨU", placeholder="Nhập mật khẩu...", type="password")
+            
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            
+            if st.button("ĐĂNG NHẬP ➔", type="primary", use_container_width=True):
+                if username and password:
+                    with st.spinner("Đang xác thực thông tin..."):
+                        res = call_api({"action": "login", "username": username, "password": password})
+                        if res:
+                            if res.get("status") == "success":
+                                st.session_state.cheat_count = 0
+                                st.session_state.username = username
+                                st.session_state.ho_ten = res.get("hoTen")
+                                st.session_state.lop = res.get("lop")
+                                st.session_state.config = res.get("config", {}) 
+                                st.session_state.questions = generate_exam(res.get("questions", []), st.session_state.config)
+                                st.session_state.start_time = time.time()
+                                st.session_state.current_q_index = 0
+                                st.session_state.exam_state = 'IN_PROGRESS'
+                                st.rerun()
+                            else:
+                                st.error("❌ SAI TÀI KHOẢN HOẶC MẬT KHẨU!")
+                        else:
+                            st.error("LỖI KẾT NỐI MÁY CHỦ GOOGLE SHEETS")
+                else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
+                
+        else: # Chế độ đổi mật khẩu
+            st.warning("⚠️ Chỉ nhập thông tin vào đây khi bạn muốn thay đổi Mật khẩu.")
+            username = st.text_input("> TÀI_KHOẢN", placeholder="Nhập tên đăng nhập (Mã HS)...")
+            old_password = st.text_input("> MẬT_KHẨU_CŨ", placeholder="Nhập mật khẩu hiện tại...", type="password")
+            new_password = st.text_input("> MẬT_KHẨU_MỚI", placeholder="Nhập mật khẩu mới an toàn hơn...", type="password")
+            
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            
+            if st.button("CẬP NHẬT MẬT KHẨU ➔", type="primary", use_container_width=True):
+                if username and old_password and new_password:
+                    with st.spinner("Đang cập nhật dữ liệu..."):
+                        res = call_api({"action": "change_password", "username": username, "old_password": old_password, "new_password": new_password})
+                        if res:
+                            if res.get("status") == "success":
+                                st.success("✅ ĐỔI MẬT KHẨU THÀNH CÔNG! Vui lòng chọn lại tab Đăng Nhập.")
+                            else:
+                                st.error("❌ SAI TÀI KHOẢN HOẶC MẬT KHẨU CŨ!")
+                        else:
+                            st.error("LỖI KẾT NỐI MÁY CHỦ GOOGLE SHEETS")
+                else: st.warning("> VUI_LÒNG_ĐIỀN_ĐẦY_ĐỦ_CÁC_Ô")
 
 # ==========================================
 # 6. MÀN HÌNH LÀM BÀI CHÍNH
@@ -482,9 +441,6 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
     
     col_nav, col_main = st.columns([1, 4.5], gap="large")
     
-    # ------------------
-    # CỘT TRÁI: ĐỒNG HỒ & BẢNG ĐIỀU HƯỚNG
-    # ------------------
     with col_nav:
         thoi_gian_giay = int(st.session_state.config.get("Thoi_Gian_Phut", 15)) * 60
         time_left = max(0, thoi_gian_giay - (time.time() - st.session_state.start_time))
@@ -555,9 +511,6 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         st.write("")
         submit_btn = st.button("📤 NỘP BÀI ➔", type="primary", use_container_width=True)
 
-    # ------------------
-    # CỘT PHẢI: KHUNG CÂU HỎI & ĐÁP ÁN
-    # ------------------
     with col_main:
         if st.session_state.cheat_count == 1:
             st.error("🚨 **CẢNH BÁO LẦN 1:** Phát hiện chuyển Tab! Vui lòng tập trung làm bài.")
@@ -578,25 +531,20 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         
         with st.container(border=True):
             st.markdown(f"<div class='q-header-box'>CÂU HỎI SỐ {current_idx + 1} / {total_q}</div>", unsafe_allow_html=True)
-            
             st.markdown(f"#### {fix_latex(q.get('CauHoi', ''))}")
             st.markdown("<hr style='border-top: 1px dashed #005f66; margin-top: 10px; margin-bottom: 0;'>", unsafe_allow_html=True)
             
             if dang == 1:
                 st.markdown("<div id='type1-container'></div>", unsafe_allow_html=True)
-                
                 options = [fix_latex(opt) for opt in [q.get('Y_A'), q.get('Y_B'), q.get('Y_C'), q.get('Y_D')] if opt]
                 saved_ans = st.session_state.answers.get(q_id)
                 idx = options.index(saved_ans) if saved_ans in options else None
-                
                 selected = st.radio(f"Lựa chọn câu {current_idx+1}:", options, key=f"ans_{q_id}", index=idx, label_visibility="collapsed")
-                if selected is not None:
-                    st.session_state.answers[q_id] = selected
+                if selected is not None: st.session_state.answers[q_id] = selected
                 
             elif dang == 2:
                 with st.container():
                     st.markdown("<div id='table-d2'></div>", unsafe_allow_html=True)
-                    
                     saved_str = st.session_state.answers.get(q_id, "")
                     saved_parts = [s.strip() for s in saved_str.split(",")] if saved_str else []
                     ans_parts = []
@@ -607,8 +555,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                             r_idx = 0 if saved_choice == "Đ" else (1 if saved_choice == "S" else None)
                             
                             c1, c2 = st.columns([7, 3]) 
-                            with c1: 
-                                st.markdown(f"**Mệnh đề {y_idx}):** &nbsp; {fix_latex(y_text)}")
+                            with c1: st.markdown(f"**Mệnh đề {y_idx}):** &nbsp; {fix_latex(y_text)}")
                             with c2:
                                 choice = st.radio(f"Chọn {y_idx}", ["Đúng", "Sai"], key=f"ans_{q_id}_{y_idx}", horizontal=True, index=r_idx, label_visibility="collapsed")
                                 ans_parts.append("Đ" if choice == "Đúng" else ("S" if choice == "Sai" else ""))
@@ -641,7 +588,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                         st.session_state.trigger_submit = True
                         st.rerun()
 
-    # XỬ LÝ CHẤM ĐIỂM
+    # XỬ LÝ CHẤM ĐIỂM GỬI LÊN MÁY CHỦ
     if submit_btn or st.session_state.get('trigger_submit', False):
         st.session_state.trigger_submit = False
         diem = 0.0
@@ -664,9 +611,16 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                     if hs_arr[k] == da_arr[k] and hs_arr[k] != "": diem += diem_d2_y
             elif dang == 3 and hoc_sinh_chon == dap_an_dung and hoc_sinh_chon != "": diem += diem_d3
                     
-        payload = {"hoTen": st.session_state.ho_ten, "lop": st.session_state.lop, "diem": round(diem, 2), "chiTiet": "\n".join(chi_tiet_bai_lam)}
-        try: requests.post(API_URL, json=payload)
-        except: pass
+        payload = {
+            "action": "submit",
+            "username": st.session_state.username,
+            "hoTen": st.session_state.ho_ten, 
+            "lop": st.session_state.lop, 
+            "diem": round(diem, 2), 
+            "chiTiet": "\n".join(chi_tiet_bai_lam)
+        }
+        call_api(payload) # Gửi kết quả về máy chủ
+        
         st.session_state.final_score = round(diem, 2)
         st.session_state.exam_state = 'SUBMITTED'
         st.rerun()
@@ -680,12 +634,11 @@ elif st.session_state.exam_state == 'SUBMITTED':
     with col2:
         st.write("")
         st.write("")
-        
         if st.session_state.get('cheat_count', 0) >= 3:
             st.error("🚫 BÀI THI KẾT THÚC DO VI PHẠM QUY CHẾ: Bạn đã bị thu bài do vi phạm gian lận 3 lần.")
             
         st.markdown(f"""
-        <div style='background: #050505; border: 2px solid #00f3ff; border-radius: 0px; padding: 50px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.2) inset;'>
+        <div style='background: #050505; border: 2px solid #00f3ff; padding: 50px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.2) inset;'>
             <h2 style="color: #00f3ff; letter-spacing: 3px; font-family: monospace;">TẢI DỮ LIỆU HOÀN TẤT!</h2>
             <p style="color: #94a3b8; font-size: 1.3em; margin-top: 20px; font-family: monospace;">ĐIỂM_SỐ_CỦA_BẠN:</p>
             <h1 style="font-size: 120px; font-weight: 900; color: #d946ef; margin: 10px 0; text-shadow: 0 0 15px rgba(217,70,239,0.5);">
