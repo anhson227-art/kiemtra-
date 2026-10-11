@@ -54,7 +54,8 @@ global_js = """
         let btn = e.target.closest('button');
         if (btn) {
             let txt = btn.innerText || btn.textContent;
-            if (txt.includes('ĐĂNG NHẬP')) {
+            // Bật toàn màn hình khi bấm Đăng Nhập hoặc Sẵn Sàng Làm Bài
+            if (txt.includes('ĐĂNG NHẬP') || txt.includes('SẴN SÀNG')) {
                 let docEl = pDoc.documentElement;
                 if (docEl.requestFullscreen) docEl.requestFullscreen().catch(err => console.log(err));
                 else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
@@ -108,7 +109,7 @@ global_js = """
                 
                 mf.style.width = '100%';
                 mf.style.display = 'block';
-                mf.style.fontSize = '1.4rem'; // ĐÃ GIẢM XUỐNG 1.4REM THEO YÊU CẦU
+                mf.style.fontSize = '1.4rem'; 
                 mf.style.backgroundColor = '#000000';
                 mf.style.color = '#00f3ff';
                 mf.style.border = '2px solid #d946ef';
@@ -383,9 +384,8 @@ if st.session_state.exam_state == 'LOGIN':
                                 st.session_state.lop = res.get("lop")
                                 st.session_state.config = res.get("config", {}) 
                                 st.session_state.questions = generate_exam(res.get("questions", {}), st.session_state.config)
-                                st.session_state.start_time = time.time()
+                                st.session_state.exam_state = 'READY'
                                 st.session_state.current_q_index = 0
-                                st.session_state.exam_state = 'IN_PROGRESS'
                                 st.rerun()
                             else:
                                 st.error("❌ SAI TÀI KHOẢN HOẶC MẬT KHẨU!")
@@ -394,6 +394,7 @@ if st.session_state.exam_state == 'LOGIN':
                 else: st.warning("> VUI_LÒNG_NHẬP_ĐẦY_ĐỦ_THÔNG_TIN")
                 
         else:
+            st.warning("⚠️ Chỉ nhập thông tin vào đây khi bạn muốn thay đổi Mật khẩu.")
             username = st.text_input("> TÀI_KHOẢN", placeholder="Nhập tên đăng nhập (Mã HS)...")
             old_password = st.text_input("> MẬT_KHẨU_CŨ", placeholder="Nhập mật khẩu hiện tại...", type="password")
             new_password = st.text_input("> MẬT_KHẨU_MỚI", placeholder="Nhập mật khẩu mới an toàn hơn...", type="password")
@@ -413,7 +414,40 @@ if st.session_state.exam_state == 'LOGIN':
                 else: st.warning("> VUI_LÒNG_ĐIỀN_ĐẦY_ĐỦ_CÁC_Ô")
 
 # ==========================================
-# 5. MÀN HÌNH LÀM BÀI CHÍNH
+# 5. MÀN HÌNH CHUẨN BỊ (TRƯỚC KHI TÍNH GIỜ)
+# ==========================================
+elif st.session_state.exam_state == 'READY':
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.markdown("""
+        <div style='background: #000000; border: 1px solid #00f3ff; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.08) inset; margin-bottom: 20px; overflow: hidden;'>
+            <h1 style='color: #ffffff; font-size: clamp(1.2rem, 3.5vw, 3.0rem); white-space: nowrap; margin: 0; font-weight: 900; text-shadow: 0 0 10px rgba(255,255,255,0.5); line-height: 1.2;'>TRƯỜNG THCS VINH PHÚ 1 _ NA</h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div style='background: #050505; border: 1px solid #d946ef; padding: 30px; text-align: center; box-shadow: 0 0 20px rgba(217,70,239,0.2) inset; border-radius: 10px; margin-bottom: 20px;'>
+            <h2 style="color: #00f3ff; font-family: monospace; letter-spacing: 2px;">XÁC THỰC THÀNH CÔNG</h2>
+            <hr style="border-top: 1px dashed #005f66; margin: 15px 0;">
+            <h3 style="color: #ffffff; margin-top: 10px; font-weight: bold;">HỌ TÊN: {st.session_state.ho_ten.upper()}</h3>
+            <h4 style="color: #d946ef; font-family: monospace; font-size: 1.5rem;">LỚP: {st.session_state.lop.upper()}</h4>
+            <p style="color: #94a3b8; font-size: 1.2rem; margin-top: 20px;">
+                Tổng số câu hỏi: <span style="color: #00f3ff; font-weight: bold;">{len(st.session_state.questions)}</span><br>
+                Thời gian làm bài: <span style="color: #00f3ff; font-weight: bold;">{st.session_state.config.get('Thoi_Gian_Phut', 15)} phút</span>
+            </p>
+            <p style="color: #ef4444; font-size: 1rem; margin-top: 10px; font-style: italic;">
+                ⚠️ Lưu ý: Tuyệt đối không chuyển tab hoặc thoát màn hình trong quá trình thi.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("SẴN SÀNG LÀM BÀI ➔", type="primary", use_container_width=True):
+            st.session_state.start_time = time.time()
+            st.session_state.exam_state = 'IN_PROGRESS'
+            st.rerun()
+
+# ==========================================
+# 6. MÀN HÌNH LÀM BÀI CHÍNH
 # ==========================================
 elif st.session_state.exam_state == 'IN_PROGRESS':
     
@@ -553,7 +587,6 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
                 
             elif dang == 3:
                 st.markdown("<div style='padding: 25px;'>", unsafe_allow_html=True)
-                # Đã loại bỏ thẻ st.info() hiển thị thông báo hướng dẫn bàn phím ảo
                 saved_ans = st.session_state.answers.get(q_id, "")
                 
                 val = st.text_input(f"> KẾT QUẢ:", value=saved_ans, key=f"ans_{q_id}", placeholder="NHẬP_VÀO_ĐÂY...")
@@ -603,7 +636,7 @@ elif st.session_state.exam_state == 'IN_PROGRESS':
         st.rerun()
 
 # ==========================================
-# 6. MÀN HÌNH KẾT QUẢ
+# 7. MÀN HÌNH KẾT QUẢ
 # ==========================================
 elif st.session_state.exam_state == 'SUBMITTED':
     st.balloons()
